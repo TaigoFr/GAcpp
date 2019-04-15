@@ -11,9 +11,9 @@ template <typename Ind>
 Evolver<Ind>::Evolver(unsigned _populationSize):
 maxGenerations(100)
 ,tolStallAverage(1.e-6)
-,averageStallMax(25)
+,averageStallMax(15)
 ,tolStallBest(1.e-8)
-,bestStallMax(25)
+,bestStallMax(15)
 ,numThreads(1)
 
 ,C("",Clock::stop)
@@ -23,7 +23,7 @@ maxGenerations(100)
 ,generationStep(0)
 
 ,create(nullptr)
-,mate(nullptr)
+,crossover(nullptr)
 ,mutate(mutate_default)
 ,evaluate(nullptr)
 ,toString(toString_default)
@@ -45,16 +45,16 @@ void Evolver<Ind>::clear(){
 }
 
 template <typename Ind>
-void Evolver<Ind>::evolve(unsigned eliteCount, double mateProb, double mutateProb){
+void Evolver<Ind>::evolve(unsigned eliteCount, double crossoverProb, double mutateProb){
 	std::cout << "****************************************"	<< std::endl;
 	std::cout << "*            Evolver started           *" << std::endl;
 	std::cout << "****************************************" << std::endl;
 	std::cout << "population:\t\t" 		<< populationSize 		<< std::endl;
 	std::cout << "eliteCount:\t\t" 		<< eliteCount 			<< std::endl;
-	std::cout << "mateProb:\t\t" 		<< mateProb 			<< std::endl;
+	std::cout << "crossoverProb:\t\t" 	<< crossoverProb 			<< std::endl;
 	std::cout << "mutationProb:\t\t" 	<< mutateProb 			<< std::endl;
 
-	checkSettings(eliteCount, mateProb, mutateProb);
+	checkSettings(eliteCount, crossoverProb, mutateProb);
 
 	unsigned num;
 	#pragma omp parallel
@@ -76,7 +76,7 @@ void Evolver<Ind>::evolve(unsigned eliteCount, double mateProb, double mutatePro
 	printGen();
 	while(stop==StopReason::Undefined){
 		// printPopulation();
-		generation(eliteCount, mateProb, mutateProb);
+		generation(eliteCount, crossoverProb, mutateProb);
 		++generationStep;
 
 		stop = updateFitness();
@@ -165,7 +165,7 @@ void Evolver<Ind>::findElite(unsigned eliteCount){
 
 
 template <typename Ind>
-void Evolver<Ind>::generation(unsigned eliteCount, double mateProb, double mutateProb){
+void Evolver<Ind>::generation(unsigned eliteCount, double crossoverProb, double mutateProb){
 	// double t1=0.,t2=0.,t3=0.;
 	// Clock C2;
 	// C2.setVerbose(false);
@@ -180,20 +180,20 @@ void Evolver<Ind>::generation(unsigned eliteCount, double mateProb, double mutat
 	}
 	// t1+=C2.L();
 
-	unsigned mateLast = eliteCount + (unsigned)((populationSize - eliteCount)*mateProb);
+	unsigned crossoverLast = eliteCount + (unsigned)((populationSize - eliteCount)*crossoverProb);
 
 	#pragma omp parallel for \
 	default(none) \
-	shared(eliteCount, populationSize, mateLast, population, mutateProb, offspring, generator)
+	shared(eliteCount, populationSize, crossoverLast, population, mutateProb, offspring, generator)
 	for(unsigned ind = eliteCount; ind<populationSize; ++ind){
 
 		unsigned parent1 = selectParent();
 		
 		Individual<Ind> *child;
 
-		if(ind <= mateLast){
+		if(ind <= crossoverLast){
 			unsigned parent2 = selectParent(parent1);
-			child = new Individual<Ind>(mate(population->pop[parent1]->I,population->pop[parent2]->I));
+			child = new Individual<Ind>(crossover(population->pop[parent1]->I,population->pop[parent2]->I));
 		}
 		else
 			child = new Individual<Ind>(*population->pop[parent1]);
@@ -353,11 +353,11 @@ void printStopReason(StopReason stop){
 }
 
 template <typename Ind>
-void Evolver<Ind>::checkSettings(unsigned eliteCount, double mateProb, double mutateProb){
+void Evolver<Ind>::checkSettings(unsigned eliteCount, double crossoverProb, double mutateProb){
 	if(create==nullptr)
 		throw std::runtime_error("create() is not set.");
-	if(mate==nullptr)
-		throw std::runtime_error("mate() is not set.");
+	if(crossover==nullptr)
+		throw std::runtime_error("crossover() is not set.");
 	if(mutate==nullptr)
 		throw std::runtime_error("mutate() is not set.");
 	if(evaluate==nullptr)
@@ -372,7 +372,7 @@ void Evolver<Ind>::checkSettings(unsigned eliteCount, double mateProb, double mu
 	if(obj==NONE)
 		throw std::runtime_error("Objective not set.");
 
-	if(mateProb<0. || mateProb>1.)
+	if(crossoverProb<0. || crossoverProb>1.)
 		throw std::runtime_error("Invalid crossover fraction.");
 	if(mutateProb<0. || mutateProb>1.)
 		throw std::runtime_error("Invalid mutation rate.");
@@ -387,7 +387,7 @@ void Evolver<Ind>::printPopulation(){
 }
 
 template <typename Ind> void Evolver<Ind>::setCreate 	(Ind 		(*func)	())							{ create 	= func; }
-template <typename Ind> void Evolver<Ind>::setMate 		(Ind 		(*func)	(const Ind&,const Ind&))	{ mate 		= func; }
+template <typename Ind> void Evolver<Ind>::setCrossover	(Ind 		(*func)	(const Ind&,const Ind&))	{ crossover	= func; }
 template <typename Ind> void Evolver<Ind>::setMutate	(void 		(*func)	(Ind&))						{ mutate 	= func; }
 template <typename Ind> void Evolver<Ind>::setEvaluate	(double		(*func)	(const Ind&), Objective o)	{ evaluate 	= func; obj = o; }
 template <typename Ind> void Evolver<Ind>::setToString	(std::string(*func)	(const Ind&))				{ toString	= func; }

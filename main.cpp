@@ -19,7 +19,7 @@ VecD create_demo1(){
 	return out;
 }
 
-VecD mate(const VecD& I1,const VecD& I2){ 
+VecD crossover(const VecD& I1,const VecD& I2){ 
 	VecD out(I1.size());
 	for(unsigned i=0; i<out.size(); ++i){
 		double r = GA::generator();
@@ -35,8 +35,8 @@ void   mutate_rastrigin(VecD &I){
 		
 		for(unsigned i=0; i<I.size(); ++i)
 		{
-			double mu=GA::generator(0.67,1.5);
-			I[i] *= mu*(GA::generator() - GA::generator());
+			double mu=GA::generator(0.9/1.2,1.2);
+			I[i] *= mu;
 			if(fabs(I[i])>5.12)
 				out_of_range=true;
 		}
@@ -62,25 +62,25 @@ int main(){
 
 	// GA::Evolver<VecD> ga1(20);
 	// ga1.setCreate(create_demo1);
-	// ga1.setMate(mate);
+	// ga1.setCrossover(crossover);
 	// ga1.setEvaluate(Benchmarks::demo1, GA::MINIMIZE);
 	// ga1.setMutate(mutate_demo1);
 	// ga1.setToString(toString);
 	// ga1.evolve(10,0.7,0.4);
 
-	// GA::Evolver<VecD> ga2(10000);
-	GA::Evolver<VecD> ga2(10000000);
+	GA::Evolver<VecD> ga2(10000);
+	// GA::Evolver<VecD> ga2(10000000);
 	ga2.setCreate(create_rastrigin); //same for sphere
-	ga2.setMate(mate);
+	ga2.setCrossover(crossover);
 	ga2.setEvaluate(Benchmarks::rastrigin, GA::MINIMIZE);
 	ga2.setMutate(mutate_rastrigin);
 	ga2.setToString(toString);
-	ga2.numThreads = 0;
+	// ga2.numThreads = 0;
 	ga2.evolve(10,0.7,0.1);
 
 	// GA::Evolver<VecD> ga3(100);
 	// ga3.setCreate(create_rastrigin); //same for sphere
-	// ga3.setMate(mate);
+	// ga3.setCrossover(crossover);
 	// ga3.setEvaluate(Benchmarks::sphere, GA::MINIMIZE);
 	// ga3.setMutate(mutate_rastrigin);
 	// ga3.setToString(toString);

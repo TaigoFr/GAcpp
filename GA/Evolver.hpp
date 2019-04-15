@@ -35,17 +35,17 @@ namespace GA{
 
 		void clear();
 
-		void evolve(unsigned elite_count, double mate_prob, double mutate_prob);
+		void evolve(unsigned eliteCount, double crossoverProb, double mutateProb);
 
 		void initiatePopulation();
 		StopReason updateFitness();
 		void printPopulation();
 
-		void setCreate 	(Ind 		(*func)	());
-		void setMate 	(Ind 		(*func)	(const Ind&,const Ind&));
-		void setMutate	(void 		(*func)	(Ind&));
-		void setEvaluate(double		(*func)	(const Ind&), Objective);
-		void setToString(std::string(*func)	(const Ind&));
+		void setCreate 		(Ind 		(*func)	());
+		void setCrossover	(Ind 		(*func)	(const Ind&,const Ind&));
+		void setMutate		(void 		(*func)	(Ind&));
+		void setEvaluate	(double		(*func)	(const Ind&), Objective);
+		void setToString	(std::string(*func)	(const Ind&));
 
 		unsigned	maxGenerations;
 		double 		tolStallAverage;
@@ -67,14 +67,14 @@ namespace GA{
 		void findElite(unsigned elite_count);
 		StopReason stopCriteria(double oldBest, double newBest, double oldAverage, double newAverage);
 
-		void generation(unsigned eliteCount, double mateProb, double mutateProb);
-		void checkSettings(unsigned eliteCount, double mateProb, double mutateProb);
+		void generation(unsigned eliteCount, double crossoverProb, double mutateProb);
+		void checkSettings(unsigned eliteCount, double crossoverProb, double mutateProb);
 		// void preSelection(unsigned elite_count);
-		void crossoverAndMutate(double mateProb, double mutateProb);
+		void crossoverAndMutate(double crossoverProb, double mutateProb);
 		void printGen();
 
 		Ind 		(*create) 	();
-		Ind 		(*mate) 	(const Ind&,const Ind&);
+		Ind 		(*crossover)(const Ind&,const Ind&);
 		void 		(*mutate)	(Ind&);
 		double		(*evaluate)	(const Ind&);
 		std::string	(*toString)	(const Ind&);
