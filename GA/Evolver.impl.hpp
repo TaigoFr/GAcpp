@@ -59,7 +59,7 @@ void Evolver<Ind>::evolve(unsigned eliteCount, double crossoverProb, double muta
 	unsigned num;
 	#pragma omp parallel
 		#pragma omp master
-	num = omp_get_num_threads();
+			num = omp_get_num_threads();
 	if(num!=numThreads && numThreads!=0)
 		omp_set_num_threads(numThreads);
 
@@ -322,34 +322,6 @@ StopReason Evolver<Ind>::stopCriteria(double oldBest, double newBest, double old
 	// printf("%d %d\n",bestStallCount,averageStallCount);
 
 	return StopReason::Undefined;
-}
-
-void printStopReason(StopReason stop){
-	std::string str;
-	switch(stop)
-	{
-		case StopReason::Undefined:
-		str = "No-stop";
-		break;
-		case StopReason::MaxGenerations:
-		str = "Maximum generation reached";
-		break;
-		case StopReason::StallAverage:
-		str = "Average stalled";
-		break;
-		case StopReason::StallBest:
-		str = "Best stalled";
-		break;
-		default:
-		str = "Unknown reason";
-	}
-
-	std::cout << "Stop criteria: ";
-	if(stop == StopReason::Undefined)
-		std::cout << "There is a bug in this function";
-	else
-		std::cout << str;
-	std::cout << std::endl;
 }
 
 template <typename Ind>

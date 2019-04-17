@@ -4,3 +4,5 @@
 ## logbook?
 
 ## stats??
+
+## binary search - can it be replaced by std::lower_bound ? (I know it does binary search)

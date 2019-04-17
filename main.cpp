@@ -2,7 +2,7 @@
 #include "Evolver.hpp"
 #include "Benchmarks.hpp"
 
-static unsigned N = 2;
+static unsigned N = 5;
 
 //same for sphere
 VecD create_rastrigin(){
@@ -30,31 +30,29 @@ VecD crossover(const VecD& I1,const VecD& I2){
 
 void   mutate_rastrigin(VecD &I){
 	bool out_of_range;
-	do{
-		out_of_range=false;
-		
-		for(unsigned i=0; i<I.size(); ++i)
-		{
-			double mu=GA::generator(0.9/1.2,1.2);
+
+	for(unsigned i=0; i<I.size(); ++i){
+		do{
+			out_of_range=false;
+			double mu=GA::generator(0.9/1.4,1.4);
 			I[i] *= mu;
 			if(fabs(I[i])>5.12)
 				out_of_range=true;
-		}
-	} while(out_of_range);
+		} while(out_of_range);
+	}
 }
 void   mutate_demo1(VecD &I){
 	bool out_of_range;
-	do{
-		out_of_range=false;
-		
-		for(unsigned i=0; i<I.size(); ++i)
-		{
-			double mu=GA::generator(0.67,1.5);
-			I[i] *= mu*(GA::generator() - GA::generator());
+	
+	for(unsigned i=0; i<I.size(); ++i){
+		do{
+			out_of_range=false;
+			double mu=GA::generator(0.9/1.5,1.5);
+			I[i] *= mu;
 			if(I[i]>10 || I[i]<0)
 				out_of_range=true;
-		}
-	} while(out_of_range);
+		} while(out_of_range);
+	}
 }
 std::string   toString(const VecD &I)	{ return I.toString(); }
 

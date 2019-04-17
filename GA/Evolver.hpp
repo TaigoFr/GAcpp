@@ -10,7 +10,7 @@
 
 namespace GA{
 
-	Random generator;
+	extern Random generator;
 
 	enum Objective{
 		NONE
