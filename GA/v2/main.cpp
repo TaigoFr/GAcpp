@@ -5,14 +5,14 @@
 static unsigned N = 5;
 
 //same for sphere
-VecD create_rastrigin(){
+VecD create_rastrigin(const GA::Evolver<VecD>*){
 	VecD out(N);
 	for(unsigned i=0; i<N; ++i)
 		out[i] = GA::generator(-5.12,5.12);
 	return out;
 }
 
-VecD create_demo1(){
+VecD create_demo1(const GA::Evolver<VecD>*){
 	VecD out(N);
 	for(unsigned i=0; i<N; ++i)
 		out[i] = GA::generator(0,10);

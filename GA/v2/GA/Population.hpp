@@ -25,7 +25,7 @@ public:
 		}
 	}
 
-	VecD printFitness(){
+	VecD printFitness() const{
 		VecD fitness(pop.size());
 		for(unsigned i=0; i<pop.size(); ++i)
 			fitness[i] = (pop[i]==nullptr ? 0 : pop[i]->fitness);

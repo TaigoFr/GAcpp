@@ -9,24 +9,24 @@
 
 template <typename Ind>
 Evolver<Ind>::Evolver(unsigned _populationSize):
-maxGenerations(100)
-,tolStallAverage(1.e-6)
-,averageStallMax(15)
-,tolStallBest(1.e-8)
-,bestStallMax(15)
-,numThreads(1)
+	maxGenerations(100)
+	,tolStallAverage(1.e-6)
+	,averageStallMax(15)
+	,tolStallBest(1.e-8)
+	,bestStallMax(15)
+	,numThreads(1)
 
-,C("",Clock::stop)
-,populationSize(_populationSize)
-,population(new Population<Ind>(populationSize))
-,obj(NONE)
-,generationStep(0)
+	,C("",Clock::stop)
+	,populationSize(_populationSize)
+	,population(new Population<Ind>(populationSize))
+	,obj(NONE)
+	,generationStep(0)
 
-,create(nullptr)
-,crossover(nullptr)
-,mutate(mutate_default)
-,evaluate(nullptr)
-,toString(toString_default)
+	,create(nullptr)
+	,crossover(nullptr)
+	,mutate(mutate_default)
+	,evaluate(nullptr)
+	,toString(toString_default)
 {
 	assert(populationSize >= 2);
 	C.setVerbose(false);
@@ -125,33 +125,6 @@ unsigned Evolver<Ind>::selectParent(int other)
 	return pos;
 }
 
-// template <typename Ind>
-// unsigned Evolver<Ind>::selectParent(int other){
-// 	//assumes population.fitness() was already called
-
-// 	double target = generator.getD(0.,population->fitnessSum_norm);
-
-// 	unsigned parent = (other == 0 ? 1 : 0);
-// 	if(other<0){//just give one parent
-// 		//parent is always one ahead
-// 		for (double sumSoFar = population->pop[parent++]->fitness_norm; parent < populationSize; sumSoFar += population->pop[parent++]->fitness_norm)
-// 			if (sumSoFar >= target)
-// 				break;
-// 	}
-// 	else{//give a parent !=other
-// 		for (double sumSoFar = population->pop[parent++]->fitness_norm; parent < populationSize; sumSoFar += population->pop[parent++]->fitness_norm){
-// 			if(parent==other)
-// 				continue;
-// 			if(sumSoFar >= target)
-// 				break;
-// 		}
-// 		if(parent==populationSize) //this means that other=populationSize-1
-// 			--parent;
-// 	}
-
-// 	return --parent;
-// }
-
 template <typename Ind>
 void Evolver<Ind>::findElite(unsigned eliteCount){
 	if(obj == MINIMIZE)
@@ -219,7 +192,7 @@ void Evolver<Ind>::generation(unsigned eliteCount, double crossoverProb, double 
 
 template <typename Ind>
 void Evolver<Ind>::initiatePopulation()
-{ for(unsigned i=0; i<populationSize; ++i) population->pop[i] = new Individual<Ind>(create()); }
+{ for(unsigned i=0; i<populationSize; ++i) population->pop[i] = new Individual<Ind>(create(this)); }
 
 template <typename Ind>
 StopReason Evolver<Ind>::updateFitness(){
@@ -358,7 +331,7 @@ void Evolver<Ind>::printPopulation(){
 	}
 }
 
-template <typename Ind> void Evolver<Ind>::setCreate 	(Ind 		(*func)	())							{ create 	= func; }
+template <typename Ind> void Evolver<Ind>::setCreate 	(Ind 		(*func)	(const Evolver<Ind>*))		{ create 	= func; }
 template <typename Ind> void Evolver<Ind>::setCrossover	(Ind 		(*func)	(const Ind&,const Ind&))	{ crossover	= func; }
 template <typename Ind> void Evolver<Ind>::setMutate	(void 		(*func)	(Ind&))						{ mutate 	= func; }
 template <typename Ind> void Evolver<Ind>::setEvaluate	(double		(*func)	(const Ind&), Objective o)	{ evaluate 	= func; obj = o; }

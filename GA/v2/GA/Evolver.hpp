@@ -33,19 +33,15 @@ namespace GA{
 		Evolver(unsigned _populationSize);
 		~Evolver();
 
-		void clear();
-
 		void evolve(unsigned eliteCount, double crossoverProb, double mutateProb);
 
-		void initiatePopulation();
-		StopReason updateFitness();
-		void printPopulation();
-
-		void setCreate 		(Ind 		(*func)	());
+		void setCreate 		(Ind 		(*func)	(const Evolver<Ind>*));
 		void setCrossover	(Ind 		(*func)	(const Ind&,const Ind&));
 		void setMutate		(void 		(*func)	(Ind&));
 		void setEvaluate	(double		(*func)	(const Ind&), Objective);
 		void setToString	(std::string(*func)	(const Ind&));
+
+		void printPopulation();
 
 		unsigned	maxGenerations;
 		double 		tolStallAverage;
@@ -63,6 +59,11 @@ namespace GA{
 		Objective obj;
 		unsigned generationStep;
 
+		void clear();
+
+		void initiatePopulation();
+		StopReason updateFitness();
+
 		unsigned selectParent(int other = -1);
 		void findElite(unsigned elite_count);
 		StopReason stopCriteria(double oldBest, double newBest, double oldAverage, double newAverage);
@@ -73,7 +74,7 @@ namespace GA{
 		void crossoverAndMutate(double crossoverProb, double mutateProb);
 		void printGen();
 
-		Ind 		(*create) 	();
+		Ind 		(*create) 	(const Evolver<Ind>*);
 		Ind 		(*crossover)(const Ind&,const Ind&);
 		void 		(*mutate)	(Ind&);
 		double		(*evaluate)	(const Ind&);
