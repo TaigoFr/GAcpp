@@ -34,7 +34,7 @@ void   mutate_rastrigin(VecD &I){
 	for(unsigned i=0; i<I.size(); ++i){
 		do{
 			out_of_range=false;
-			double mu=GA::generator(0.9/1.4,1.4);
+			double mu=GA::generator(0.9/1.2,1.2);
 			I[i] *= mu;
 			if(fabs(I[i])>5.12)
 				out_of_range=true;
@@ -74,6 +74,7 @@ int main(){
 	ga2.setMutate(mutate_rastrigin);
 	ga2.setToString(toString);
 	// ga2.numThreads = 0;
+	ga2.maxGenerations = 1000;
 	ga2.evolve(10,0.7,0.1);
 
 	// GA::Evolver<VecD> ga3(100);
