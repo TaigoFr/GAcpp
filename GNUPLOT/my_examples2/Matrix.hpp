@@ -145,8 +145,8 @@ public:
 	// static Matrix Identity(const unsigned n);	//identity matrix of size 'n' -- see below!
 	Matrix inverse() const; //inverse matrix
 
-	friend Matrix pow  (const Matrix& m, const T& power=1)	{return map2(pow,m,Matrix(getNL(),getNC(),power));}
-	friend Matrix pow  (const T& base, const Matrix& m)		{return map2(pow,Matrix(getNL(),getNC(),base),m);}
+	friend Matrix pow  (const Matrix& m, const T& power=1)	{return map2(pow,m,Matrix(m.getNL(),m.getNC(),power));}
+	friend Matrix pow  (const T& base, const Matrix& m)		{return map2(pow,Matrix(m.getNL(),m.getNC(),base),m);}
 
 	template <class T2> friend Matrix<T2> max  (const Matrix<T2>&, const Matrix<T2>&);
 	template <class T2> friend Matrix<T2> min  (const Matrix<T2>&, const Matrix<T2>&);
