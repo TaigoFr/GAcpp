@@ -1,63 +1,10 @@
 #pragma once
 
-#include <string>
-#include <vector>
-#include <memory>
-
 #include "Connection.hpp"
-#include "Node.hpp"
+#include "Parameters.hpp"
 #include "Evolver.hpp"
 
 namespace NEAT{
-
-	struct Parameters{
-		std::vector<std::shared_ptr<BasicConnection>> allConnections;
-
-		unsigned numInputs;
-		unsigned numOutputs;
-
-		unsigned innovationNumber;
-
-		float mutateRateNewConnection;
-		float mutateRateNewNode;
-		float mutateRateWeightPerturbation;
-		float mutateMaxPerturbation;
-
-//to keep fixed
-		float minInitWeight;
-		float maxInitWeight;
-		float minInitBias;
-		float maxInitBias;
-
-//old
-		// float mutateRateDisableChange;
-
-		// float _speciationTolerance;
-		// float _preferSimilarFactor;
-		// float _reproduceRatio;
-
-
-		// float _minWeight;
-		// float _maxWeight;
-		// float _minBias;
-		// float _maxBias;
-
-		// // Species similarity weighting factors
-		// float _excessFactor;
-		// float _disjointFactor;
-		// float _averageWeightDifferenceFactor;
-		// float _inputCountDifferenceFactor;
-		// float _outputCountDifferenceFactor;
-
-		// size_t _populationSize;
-
-		// size_t _numElites;
-
-		Parameters();
-		void check();
-		unsigned connectionExists(unsigned from, unsigned to);
-		unsigned addConnection(unsigned from, unsigned to); //return innovationNumber of that connection
-	};
 
 	class Network{
 	public:
@@ -65,13 +12,14 @@ namespace NEAT{
 
 		Network(const Network&);
 		Network(Network&&);
-		~Network() = default;
+		~Network();
+		void clear();
 		Network& operator=(const Network&) = delete;
 		Network& operator=(Network&&) = delete;
 
 		//functions for GA::Evolver
 		static Network 		create 	 (const GA::Evolver<Network>*);
-		static Network 		crossover(const Network&,const Network&);
+		static Network 		crossover(const Network&,const Network&, double fit1, double fit2);
 		static void 		mutate	 (Network&);
 		static double		evaluate (const Network&);
 		static std::string	toString (const Network&);
@@ -81,13 +29,16 @@ namespace NEAT{
 		unsigned getNumOutputs() 	 const;
 		unsigned getNumNodes() 		 const;
 		unsigned getNumConnections() const;
+		const std::vector<Connection*>& getConnections() const;
+
+		VecD evaluate(const VecD& input) const; //returns output
 
 		Parameters &params;
 	private:
-		const unsigned numInputs, numNonHidden;
-		unsigned numHidden;
-		std::vector<std::shared_ptr<Connection>> connections;
-		std::vector<std::shared_ptr<Node>> nodes; //first Input, then Output, then Hidden
+		//bias is node 0; then come inputs and outputs, and finally hidden
+		const unsigned numInputs, numOutputs, numNonHidden; //numNonHidden = numInputs + numOutput + 1 (bias)
+		unsigned numHidden, numNodes; // numNodes = numNonHidden + numHidden
+		std::vector<Connection*> connections;
 
 		void initialize();
 
@@ -95,8 +46,9 @@ namespace NEAT{
 		unsigned countNode(unsigned n);
 		unsigned connectionExists(unsigned from, unsigned to); //checks both from-to and to-from
 
-		void addNode(unsigned id, double bias = -1.e308);
-		void addConnection(unsigned from, unsigned to); //doesn't check if connection already exists
+		void addNode(unsigned id);
+		void addConnection(unsigned from, unsigned to); //doesn't check if connection already exists in Network (only in params)
+		void addConnection(const Connection* con); //assumess innovationNumber ordering and just copies and pushes back
 
 		void mutatePerturbWeight();
 		bool mutateAddConnection();

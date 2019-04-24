@@ -2,37 +2,46 @@
 #pragma once
 
 #include <vector>
-#include <memory>
-
-#include "Connection.hpp"
+#include <cmath>
 
 namespace NEAT{
 
+class Node;
+struct Synapse{
+	Node* pre_node;
+	double weight;
+};
+
 class Node{
 public:
-	Node(double _bias): bias(_bias){}
-	Node(const Node&&) = delete;
-	Node(const Node&)  = delete; //just to make sure
+	static double sigmoid(double x) 			{ return 1. / (1. + std::exp(-x)); }
+	static double sigmoidDerivative(double x) 	{ double s = sigmoid(x); return s * (1. - s); }
 
-	// void addPreConnection(const std::shared_ptr<Connection> &new_connection){
-		// pre_connections.push_back(new_connection);
-	// }
-	// void addPosConnection(){ ++pos_connetions; }
+	Node(): set(false), value(0.), synapses(0), pos_nodes(0){}
 
-	void addBias(double b){ bias += b; }
-	// unsigned numConnections() const{ return pre_connections.size() + pos_connetions; }
+	void addPreNode(Node* pre_node, double weight){	synapses.push_back(Synapse{pre_node,weight}); }
+	void addPosNode(){ ++pos_nodes; }
 
-	// bool contains(unsigned n) const{
-	// 	for(auto it = pre_connections.begin(); it<pre_connections.end(); ++it)
-	// 		if((*it)->pre == n)
-	// 			return true;
-	// 	return false;
-	// }
+	void setValue(double v){
+		value = v;
+		set = true;
+	}
+	double evaluate(){
+		if(set) return value;
+
+		double sum = 0.;
+		for(unsigned i=0, size=synapses.size(); i<size; ++i)
+			sum += synapses[i].weight * synapses[i].pre_node->evaluate();
+		value = sigmoid(sum);
+		set = true;
+		return value;
+	}
 
 private:
-	// std::vector< std::shared_ptr<Connection> > pre_connections;
-	// unsigned pos_connetions;
-	double bias;
+	bool set;
+	double value;
+	std::vector< Synapse > synapses;
+	unsigned pos_nodes;
 };
 
 }

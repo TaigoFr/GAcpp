@@ -164,9 +164,10 @@ void Evolver<Ind>::generation(unsigned eliteCount, double crossoverProb, double 
 		
 		Individual<Ind> *child;
 
-		if(ind <= crossoverLast){
+		if(ind < crossoverLast){
 			unsigned parent2 = selectParent(parent1);
-			child = new Individual<Ind>(crossover(population->pop[parent1]->I,population->pop[parent2]->I));
+			child = new Individual<Ind>(crossover(population->pop[parent1]->I,population->pop[parent2]->I,
+												population->pop[parent1]->fitness,population->pop[parent2]->fitness));
 		}
 		else
 			child = new Individual<Ind>(*population->pop[parent1]);
@@ -332,7 +333,8 @@ void Evolver<Ind>::printPopulation(){
 }
 
 template <typename Ind> void Evolver<Ind>::setCreate 	(Ind 		(*func)	(const Evolver<Ind>*))		{ create 	= func; }
-template <typename Ind> void Evolver<Ind>::setCrossover	(Ind 		(*func)	(const Ind&,const Ind&))	{ crossover	= func; }
+template <typename Ind> void Evolver<Ind>::setCrossover	(Ind 		(*func)	(const Ind&,const Ind&,
+																			double fit1, double fit2))	{ crossover	= func; }
 template <typename Ind> void Evolver<Ind>::setMutate	(void 		(*func)	(Ind&))						{ mutate 	= func; }
 template <typename Ind> void Evolver<Ind>::setEvaluate	(double		(*func)	(const Ind&), Objective o)	{ evaluate 	= func; obj = o; }
 template <typename Ind> void Evolver<Ind>::setToString	(std::string(*func)	(const Ind&))				{ toString	= func; }

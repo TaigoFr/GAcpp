@@ -36,7 +36,7 @@ namespace GA{
 		void evolve(unsigned eliteCount, double crossoverProb, double mutateProb);
 
 		void setCreate 		(Ind 		(*func)	(const Evolver<Ind>*));
-		void setCrossover	(Ind 		(*func)	(const Ind&,const Ind&));
+		void setCrossover	(Ind 		(*func)	(const Ind&,const Ind&, double fit1, double fit2));
 		void setMutate		(void 		(*func)	(Ind&));
 		void setEvaluate	(double		(*func)	(const Ind&), Objective);
 		void setToString	(std::string(*func)	(const Ind&));
@@ -75,7 +75,7 @@ namespace GA{
 		void printGen();
 
 		Ind 		(*create) 	(const Evolver<Ind>*);
-		Ind 		(*crossover)(const Ind&,const Ind&);
+		Ind 		(*crossover)(const Ind&,const Ind&, double fit1, double fit2);
 		void 		(*mutate)	(Ind&);
 		double		(*evaluate)	(const Ind&);
 		std::string	(*toString)	(const Ind&);

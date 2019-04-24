@@ -1,5 +1,9 @@
 #pragma once
 
+#include <vector>
+#include <string>
+#include <sstream>
+
 //TEMPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 #include <iostream>
 
@@ -12,6 +16,14 @@ public:
 		pre(_pre), pos(_pos), innovationNumber(_innovationNumber)
 		{}
 
+	static std::string toString(const std::vector<BasicConnection*> &net){
+		std::stringstream str;
+		str << "C" << net.size() << "\n";
+		for(unsigned i=0, size=net.size(); i<size; ++i)
+			str << net[i]->innovationNumber << ":" << net[i]->pre << "-" << net[i]->pos << "|";
+		return str.str();
+	}
+
 	const unsigned pre, pos;
 	const unsigned innovationNumber;
 };
@@ -23,15 +35,22 @@ public:
 		weight(_weight), enabled(_enabled)
 		{}
 
-	static bool compare(const std::shared_ptr<Connection> &c1, const std::shared_ptr<Connection> &c2){ return c1->innovationNumber < c2->innovationNumber; }
+	static std::string toString(const std::vector<Connection*> &net){
+		std::stringstream str;
+		str << "C" << net.size() << "\n";
+		for(unsigned i=0, size=net.size(); i<size; ++i)
+			str << net[i]->innovationNumber << ":" << net[i]->pre << "-" << net[i]->pos << "(" << net[i]->getEnabled() << ")|";
+		return str.str();
+	}
 
-	void addWeight(double w){ weight += w; }
+	static bool compare(const Connection* c1, const Connection* c2){ return c1->innovationNumber < c2->innovationNumber; }
 
 	bool getEnabled(){ return enabled; }
 	void disable(){ enabled = false; }
+	
+	double weight;
 private:
 	// Node indices
-	double weight;
 	bool enabled;
 };
 

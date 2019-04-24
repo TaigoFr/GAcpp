@@ -19,7 +19,7 @@ VecD create_demo1(const GA::Evolver<VecD>*){
 	return out;
 }
 
-VecD crossover(const VecD& I1,const VecD& I2){ 
+VecD crossover(const VecD& I1,const VecD& I2, double, double){ 
 	VecD out(I1.size());
 	for(unsigned i=0; i<out.size(); ++i){
 		double r = GA::generator();
