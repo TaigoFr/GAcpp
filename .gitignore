@@ -1,6 +1,10 @@
+#files without extension
+*
+!/**/
+!*.*
+
+#other
 */bin/
 bin/
 *.exe
 *.o
-*
-!*.*
