@@ -1,0 +1,76 @@
+Construtor:
+Set title()
+Set autoscale true()
+setLegend()
+
+
+
+Look up:
+
+Especificar tamanho da janela do plot a priori;  GNUPLOT MAIN FEATURES:
+
+set title "Reta de Calibração" font "Verdana, 21" offset 0,-1
+
+void setTitle (const std::string &title="Title"){
+font "Verdana, 21" offset 0,-1 (fixed)
+Concatenação com +
+}
+
+set xlabel "i(A)" font "Verdana, 20" offset 0,-0.5
+y(…)
+Mm que setTitle
+
+set bmargin 4.5
+set umargin 4.5
+On hold, automatic
+
+set xrange [0:1.6]
+y(…)
+Void  setXrange(double, double)
+
+set xtics font "Verdana, 18" 
+y(…)
+incluir no setXrange
+
+set autoscale xy
+x(…)
+y(…)
+Void setAutoscale()
+
+set logscale x
+y(…)
+Void setLogscale()
+
+set format x "%.1e"
+y(…)
+Void setFormat(unsigned nr_digits, bool exp_or_not=false)
+
+set mxtics 10
+y(…)
+Void setXtics(unsigned nr)
+
+
+set grid ytics lt 0 lw 1 lc rgb "#880000"
+Void setGrid(bool grid=false)
+
+plot "I_1.txt" u ($1):($2):($3*2) with yerrorbars lt rgb "red" pt 18 ps 2  t "Pontos Experimentais"
+Void plot(const VecD &x’s, const VecD &y’s, const std::string &legend="", unsigned pt=1)
+Void plot(const VecD &x’s, const VecD &y’s, const VecD &errory’s, const std::string &legend="", unsigned pt=1)
+Void plot(const VecD &x’s, const VecD &y’s, const VecD &errorx’s,  const VecD &errory’s, const std::string &legend="", unsigned pt=1)
+Void plot(const MatrixD &xy’s, const std::string &legend="", bool errorx=false, bool errory=false, unsigned pt=1)
+Void plot(const std::string &func, const std::string &legend="",  unsigned pt=1)
+
+set style line 2 lc rgb "blue" lt 3 dashtype '..-'
+B(x) ls 2 lw 2 t "Curva Teórica"
+
+
+#****LEGENDA*****
+
+set key inside right top vertical noreverse enhanced autotitle box lt black linewidth 1.100 dashtype solid  
+##or nobox
+set key noinvert samplen 7 width .8 height .8
+set key font "Verdana, 18"
+Void setLegend(bool left=false, bool bottom=false)
+
+4x4 plots
+/Users/bpc/2º Ano-2º Sem./Laboratório de Complementos de Eletromagnetismo e Termodinâmica/Relatórios
