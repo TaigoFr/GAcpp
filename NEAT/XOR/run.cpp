@@ -40,11 +40,11 @@ int main(){
 	ga.params.numOutputs = 1;
 	ga.setEvaluate(XOR, GA::MINIMIZE);
 	ga.maxGenerations = 100;
-	ga.evolve(6,0.9,1);
+	ga.evolve(10,0.9,1);
 
 	NEAT::Network *best = &ga.getBest();
 	std::cout << NEAT::Network::toString(*best) << std::endl;
-	std::cout << "F = " << ga.getBestFitness() << std::endl;
+	std::cout << "Best Fitness = " << (4.-ga.getBestFitness())*25. << std::endl;
 
 	showOutput(*best);
 

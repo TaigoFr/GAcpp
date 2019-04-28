@@ -118,6 +118,7 @@ std::string	Image::toString(const MatrixD& M){ return M.toString(" "); } //" " s
 double Image::nodeDistance(const MatrixD& mat, unsigned n1, unsigned n2, double power){
 	if(n1==0 || n2==0 || n1 > mat.getNL() || n2 > mat.getNL())
 		throw std::runtime_error("Invalid node.");
+
 	double x = mat[n1-1][0] - mat[n2-1][0];
 	double y = mat[n1-1][1] - mat[n2-1][1];
 	double norm2 = x*x + y*y;
@@ -132,7 +133,34 @@ double Image::nodeDistance(const MatrixD& mat, unsigned n1, unsigned n2, double 
 
 void Image::print(){ std::cout << toString(getBest()) << std::endl; }
 void Image::draw(){
-	//display SFMl image of network
+	/*
+	// display SFMl image of network
+	const std::vector<Connection*> &connections = net->getConnections();
+	const MatrixD& nodes = getBest();
+
+	//ATTENTION - node '0' is 'bias' node. Matrix 'nodes' starts on node 1!
+
+	//examples on how to use
+	
+	for(unsigned i=0; i<nodes.getNL(); ++i){
+		double x 	= nodes[i][0];
+		double y 	= nodes[i][1];
+		double bias = nodes[i][2];
+
+		//draw node [x,y,bias]
+		// ...
+	}
+
+
+	for(unsigned i=0, size=connections.size(); i<size; ++i){
+		unsigned pre = connections[i]->pre;
+		if(pre==0) continue; //bias
+
+		unsigned pos = connections[i]->pos;
+		//draw line from nodes[pre-1] to nodes[pos-1]
+		// ...
+	}
+	*/
 }
 void Image::wait(){
 	//wait until SFML window is closed
