@@ -37,11 +37,13 @@ namespace GA{
 
 		void setCreate 		(Ind 		(*func)	(const Evolver<Ind>*));
 		void setCrossover	(Ind 		(*func)	(const Ind&,const Ind&, double fit1, double fit2));
-		void setMutate		(void 		(*func)	(Ind&));
-		void setEvaluate	(double		(*func)	(const Ind&), Objective);
+		void setMutate		(void 		(*func)	(Ind&, const Evolver<Ind>*));
+		void setEvaluate	(double		(*func)	(const Ind&, const Evolver<Ind>*), Objective);
 		void setToString	(std::string(*func)	(const Ind&));
 
-		void printPopulation();
+		Ind& 	getBest();
+		double 	getBestFitness() const;
+		void printPopulation() const;
 
 		unsigned	maxGenerations;
 		double 		tolStallAverage;
@@ -50,11 +52,20 @@ namespace GA{
 		unsigned 	bestStallMax;
 		unsigned 	numThreads;
 
-	private:
-		Clock C;
-
+	protected:
+		virtual unsigned selectParent(const VecD& fitness_cumulative, int other = -1); //to be replaced by similarity selection in NEAT
+	
 		unsigned populationSize;
 		Population<Ind>* population;
+
+		Ind 		(*create) 	(const Evolver<Ind>*);
+		Ind 		(*crossover)(const Ind&,const Ind&, double fit1, double fit2);
+		void 		(*mutate)	(Ind&, const Evolver<Ind>*);
+		double		(*evaluate)	(const Ind&, const Evolver<Ind>*);
+		std::string	(*toString)	(const Ind&);
+		
+	private:
+		Clock C;
 
 		Objective obj;
 		unsigned generationStep;
@@ -64,7 +75,6 @@ namespace GA{
 		void initiatePopulation();
 		StopReason updateFitness();
 
-		unsigned selectParent(int other = -1);
 		void findElite(unsigned elite_count);
 		StopReason stopCriteria(double oldBest, double newBest, double oldAverage, double newAverage);
 
@@ -73,16 +83,10 @@ namespace GA{
 		// void preSelection(unsigned elite_count);
 		void crossoverAndMutate(double crossoverProb, double mutateProb);
 		void printGen();
-
-		Ind 		(*create) 	(const Evolver<Ind>*);
-		Ind 		(*crossover)(const Ind&,const Ind&, double fit1, double fit2);
-		void 		(*mutate)	(Ind&);
-		double		(*evaluate)	(const Ind&);
-		std::string	(*toString)	(const Ind&);
 	};
 
-	template <typename Ind> void 		mutate_default	(Ind&)		{ return; }
-	template <typename Ind> std::string toString_default(const Ind&){ return ""; }
+	template <typename Ind> void 		mutate_default	(Ind&, const Evolver<Ind>*)	{ return; }
+	template <typename Ind> std::string toString_default(const Ind&)				{ return ""; }
 
 	#include "Evolver.impl.hpp"
 

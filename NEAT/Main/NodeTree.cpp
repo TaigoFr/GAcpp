@@ -9,6 +9,7 @@ NodeTree::NodeTree(const Network& net): numInputs(net.getNumInputs()), numOutput
 
 	const std::vector<Connection*> &connections = net.getConnections();
 	for(unsigned i=0, size=net.getNumConnections(); i<size; ++i){
+		if(!connections[i]->getEnabled()) continue; //don't add disabled connections
 		auto preNode = nodes[connections[i]->pre];
 		preNode->addPosNode();
 		nodes[connections[i]->pos]->addPreNode(preNode, connections[i]->weight);
@@ -34,6 +35,6 @@ VecD NodeTree::evaluate(const VecD& input){
 
 	VecD output(numOutputs);
 	for(unsigned i=0; i<numOutputs; ++i)
-		output[i] = nodes[numInputs+i]->evaluate();
+		output[i] = nodes[numInputs+1+i]->evaluate();
 	return output;
 }

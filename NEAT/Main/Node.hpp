@@ -4,6 +4,9 @@
 #include <vector>
 #include <cmath>
 
+//TEMPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
+#include <iostream>
+
 namespace NEAT{
 
 class Node;

@@ -16,17 +16,18 @@ Evolver<Ind>::Evolver(unsigned _populationSize):
 	,bestStallMax(15)
 	,numThreads(1)
 
-	,C("",Clock::stop)
 	,populationSize(_populationSize)
 	,population(new Population<Ind>(populationSize))
-	,obj(NONE)
-	,generationStep(0)
 
 	,create(nullptr)
 	,crossover(nullptr)
 	,mutate(mutate_default)
 	,evaluate(nullptr)
 	,toString(toString_default)
+
+	,C("",Clock::stop)
+	,obj(NONE)
+	,generationStep(0)
 {
 	assert(populationSize >= 2);
 	C.setVerbose(false);
@@ -43,6 +44,12 @@ void Evolver<Ind>::clear(){
 		population = nullptr;
 	}
 }
+
+template <typename Ind>
+Ind&  	Evolver<Ind>::getBest()				{ return population->pop[population->bestRank]->I; }
+template <typename Ind>
+double 	Evolver<Ind>::getBestFitness() const{ return population->pop[population->bestRank]->fitness; }
+
 
 template <typename Ind>
 void Evolver<Ind>::evolve(unsigned eliteCount, double crossoverProb, double mutateProb){
@@ -100,26 +107,27 @@ void Evolver<Ind>::printGen(){
 
 
 template <typename Ind>
-unsigned Evolver<Ind>::selectParent(int other)
+unsigned Evolver<Ind>::selectParent(const VecD& fitness_cumulative, int other)
 {
-	double target = generator.getD(0.,population->fitnessSum_norm);
+	double fitnessSum_norm = fitness_cumulative.back();
+	double target = generator.getD(0.,fitnessSum_norm);
 
 	//original: https://stackoverflow.com/questions/39416560/how-can-i-simplify-this-working-binary-search-code-in-c/39417165#39417165
 	unsigned pos = (other == 0 ? 1 : 0);
-	unsigned limit = populationSize;
+	unsigned limit = fitness_cumulative.size();
 	while(pos < limit)
 	{
 		unsigned testpos = pos+((limit-pos)>>1);
 
-		if (population->fitness_comulative[testpos] < target)
+		if (fitness_cumulative[testpos] < target)
 			pos=testpos+1;
 		else
 			limit=testpos;
 	}
 	if((int)pos==other)
-		pos = (other==(int)populationSize-1 ? 0 : pos+1);
+		pos = (other==(int)fitness_cumulative.size()-1 ? 0 : pos+1);
 
-	// population->fitness_comulative.print("Fitness_Comulative: ",9);
+	// population->fitness_cumulative.print("Fitness_cumulative: ",9);
 	// printf("fitnessSum_norm = %lf\ntarget = %lf\nFinal = %u\n",population->fitnessSum_norm,target,pos);
 
 	return pos;
@@ -160,12 +168,12 @@ void Evolver<Ind>::generation(unsigned eliteCount, double crossoverProb, double 
 	shared(eliteCount, populationSize, crossoverLast, population, mutateProb, offspring, generator)
 	for(unsigned ind = eliteCount; ind<populationSize; ++ind){
 
-		unsigned parent1 = selectParent();
+		unsigned parent1 = selectParent(population->fitness_cumulative);
 		
 		Individual<Ind> *child;
 
 		if(ind < crossoverLast){
-			unsigned parent2 = selectParent(parent1);
+			unsigned parent2 = selectParent(population->fitness_cumulative, parent1);
 			child = new Individual<Ind>(crossover(population->pop[parent1]->I,population->pop[parent2]->I,
 												population->pop[parent1]->fitness,population->pop[parent2]->fitness));
 		}
@@ -173,7 +181,7 @@ void Evolver<Ind>::generation(unsigned eliteCount, double crossoverProb, double 
 			child = new Individual<Ind>(*population->pop[parent1]);
 
 		if(generator.getD() <= mutateProb)
-			mutate(child->I);
+			mutate(child->I,this);
 
 		offspring->pop[ind] = child;
 	}
@@ -206,20 +214,20 @@ StopReason Evolver<Ind>::updateFitness(){
 
 	double maxfitness = -std::numeric_limits<double>::infinity();
 
-	Individual<Ind>* ind;
+	Individual<Ind>* ind; //to avoid repeating the line twice in the if, else, but not needed outside
 	if(obj == MAXIMIZE){
 
 		for(unsigned i=0; i<populationSize; ++i){
 			ind = population->pop[i];
 			if(ind!=nullptr){
-				double fitness = evaluate(ind->I);
+				double fitness = evaluate(ind->I,this);
 				
 				ind->fitness 			= fitness;
 				population->fitnessSum += ind->fitness_norm;
 
 				ind->fitness_norm 			 = fitness;
 				population->fitnessSum_norm += ind->fitness_norm;
-				population->fitness_comulative[i] = population->fitnessSum_norm;
+				population->fitness_cumulative[i] = population->fitnessSum_norm;
 
 				if(fitness>maxfitness){
 					population->bestRank = i;
@@ -237,7 +245,7 @@ StopReason Evolver<Ind>::updateFitness(){
 		for(unsigned i=0; i<populationSize; ++i){
 			ind = population->pop[i];
 			if(ind!=nullptr){
-				double fitness = evaluate(ind->I);
+				double fitness = evaluate(ind->I,this);
 
 				ind->fitness 			= fitness;
 				population->fitnessSum += ind->fitness;
@@ -255,7 +263,7 @@ StopReason Evolver<Ind>::updateFitness(){
 			if(ind!=nullptr){
 				ind->fitness_norm 			 = maxfitness - ind->fitness + minfitness; //invert fitnesses - swap max for min in order to minimize fitness
 				population->fitnessSum_norm += ind->fitness_norm;
-				population->fitness_comulative[i] = population->fitnessSum_norm;
+				population->fitness_cumulative[i] = population->fitnessSum_norm;
 			}
 		}
 	}
@@ -325,16 +333,17 @@ void Evolver<Ind>::checkSettings(unsigned eliteCount, double crossoverProb, doub
 }
 
 template <typename Ind>
-void Evolver<Ind>::printPopulation(){
+void Evolver<Ind>::printPopulation() const{
 	for(unsigned i=0; i<populationSize; ++i){
 		Individual<Ind>* ind = population->pop[i];
-		if(ind!=nullptr) std::cout << toString(ind->I) << std::endl;	
+		if(ind!=nullptr) std::cout << toString(ind->I) << " (F=" << ind->fitness << ")" << std::endl;	
 	}
 }
 
-template <typename Ind> void Evolver<Ind>::setCreate 	(Ind 		(*func)	(const Evolver<Ind>*))		{ create 	= func; }
+template <typename Ind> void Evolver<Ind>::setCreate 	(Ind 		(*func)	(const Evolver<Ind>*))							{ create 	= func; }
 template <typename Ind> void Evolver<Ind>::setCrossover	(Ind 		(*func)	(const Ind&,const Ind&,
-																			double fit1, double fit2))	{ crossover	= func; }
-template <typename Ind> void Evolver<Ind>::setMutate	(void 		(*func)	(Ind&))						{ mutate 	= func; }
-template <typename Ind> void Evolver<Ind>::setEvaluate	(double		(*func)	(const Ind&), Objective o)	{ evaluate 	= func; obj = o; }
-template <typename Ind> void Evolver<Ind>::setToString	(std::string(*func)	(const Ind&))				{ toString	= func; }
+																			double fit1, double fit2))						{ crossover	= func; }
+template <typename Ind> void Evolver<Ind>::setMutate	(void 		(*func)	(Ind&, const Evolver<Ind>*))					{ mutate 	= func; }
+template <typename Ind> void Evolver<Ind>::setEvaluate	(double		(*func)	(const Ind&, const Evolver<Ind>*), Objective o)	{ evaluate 	= func; obj = o; }
+template <typename Ind> void Evolver<Ind>::setToString	(std::string(*func)	(const Ind&))									{ toString	= func; }
+

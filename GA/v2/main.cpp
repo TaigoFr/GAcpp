@@ -28,7 +28,7 @@ VecD crossover(const VecD& I1,const VecD& I2, double, double){
 	return out; 
 }
 
-void   mutate_rastrigin(VecD &I){
+void   mutate_rastrigin(VecD &I, const GA::Evolver<VecD>*){
 	bool out_of_range;
 
 	for(unsigned i=0; i<I.size(); ++i){
@@ -41,7 +41,7 @@ void   mutate_rastrigin(VecD &I){
 		} while(out_of_range);
 	}
 }
-void   mutate_demo1(VecD &I){
+void   mutate_demo1(VecD &I, const GA::Evolver<VecD>*){
 	bool out_of_range;
 	
 	for(unsigned i=0; i<I.size(); ++i){
@@ -76,6 +76,9 @@ int main(){
 	// ga2.numThreads = 0;
 	ga2.maxGenerations = 1000;
 	ga2.evolve(10,0.7,0.1);
+
+	std::cout << toString(ga2.getBest()) << std::endl;
+	std::cout << "F = " << ga2.getBestFitness() << std::endl;
 
 	// GA::Evolver<VecD> ga3(100);
 	// ga3.setCreate(create_rastrigin); //same for sphere

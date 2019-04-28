@@ -2,25 +2,25 @@
 #include "Benchmarks.hpp"
 #include <cmath>
 
-double Benchmarks::sphere(const VecD& v) { return v.norm()/sqrt(v.size()); }
-double Benchmarks::rosenbrock(const VecD& v){
+double Benchmarks::sphere(const VecD& v, const GA::Evolver<VecD>*) { return v.norm()/sqrt(v.size()); }
+double Benchmarks::rosenbrock(const VecD& v, const GA::Evolver<VecD>*){
 	if(v.size() < 2)
 		throw std::runtime_error("VecD minimum size is 2.");
 	return 100.*(v[0]*v[0]-v[1])*(v[0]*v[0]-v[1])+(1.-v[0])*(1.-v[0]);
 }
-double Benchmarks::step(const VecD& v){
+double Benchmarks::step(const VecD& v, const GA::Evolver<VecD>*){
 	double out = 0.;
 	for(unsigned i=0; i<v.size(); ++i)
 		out += (int)(v[i]);
 	return out;
 }
-double Benchmarks::rastrigin(const VecD& v){
+double Benchmarks::rastrigin(const VecD& v, const GA::Evolver<VecD>*){
 	double out = 10.*v.size();
 	for(unsigned i=0; i<v.size(); ++i)
 		out += v[i]*v[i]-10.*cos(2.*M_PI*v[i]);
 	return out;
 }
-double Benchmarks::foxholes(const VecD& v){
+double Benchmarks::foxholes(const VecD& v, const GA::Evolver<VecD>*){
 	static double aij[2][25] = {{-32,16,0,16,32, -32,16,0,16,32, -32,16,0,16,32, -32,16,0,16,32, -32,16,0,16,32},{-32,-32,-32,-32,-32, -16,-16,-16,-16,-16, 0,0,0,0,0, 32,32,32,32,32, 16,16,16,16,16}};
 
 	if(v.size() < 2)
@@ -34,7 +34,7 @@ double Benchmarks::foxholes(const VecD& v){
 }
 
 
-double Benchmarks::demo1(const VecD& v){
+double Benchmarks::demo1(const VecD& v, const GA::Evolver<VecD>*){
 	if(v.size() < 2)
 		throw std::runtime_error("VecD minimum size is 2.");
 

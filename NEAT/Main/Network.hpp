@@ -20,7 +20,7 @@ namespace NEAT{
 		//functions for GA::Evolver
 		static Network 		create 	 (const GA::Evolver<Network>*);
 		static Network 		crossover(const Network&,const Network&, double fit1, double fit2);
-		static void 		mutate	 (Network&);
+		static void 		mutate	 (Network&, const GA::Evolver<Network>*);
 		static double		evaluate (const Network&);
 		static std::string	toString (const Network&);
 
@@ -30,8 +30,11 @@ namespace NEAT{
 		unsigned getNumNodes() 		 const;
 		unsigned getNumConnections() const;
 		const std::vector<Connection*>& getConnections() const;
+		double getBias(unsigned node) const; //0. if not found
 
 		VecD evaluate(const VecD& input) const; //returns output
+
+		static double getDissimilarity(const Network&, const Network&);
 
 		Parameters &params;
 	private:
@@ -43,13 +46,14 @@ namespace NEAT{
 		void initialize();
 
 		bool isOutputNode(unsigned n);
-		unsigned countNode(unsigned n);
-		unsigned connectionExists(unsigned from, unsigned to); //checks both from-to and to-from
+		unsigned countNode(unsigned n, bool countPreToo);
+		bool isInPast(unsigned from, unsigned to); //tests if 'from' is in past of node 'to', in order to prevent loop formation
+		unsigned connectionExists(unsigned from, unsigned to, bool checkDisabled); //checks both from-to and to-from
 
-		void addNode(unsigned id);
-		void addConnection(unsigned from, unsigned to); //doesn't check if connection already exists in Network (only in params)
-		void addConnection(const Connection* con); //assumess innovationNumber ordering and just copies and pushes back
-
+		void addNode(unsigned id, bool isInit);
+		void addConnection(unsigned from, unsigned to, bool isInit); //doesn't check if connection already exists in Network (only in params)
+		void addConnection(const Connection* con, bool enableChance); //assumess innovationNumber ordering and just copies and pushes back;
+																	//possibly enables connection as 'mutateRateEnableChance'
 		void mutatePerturbWeight();
 		bool mutateAddConnection();
 		void mutateAddNode();

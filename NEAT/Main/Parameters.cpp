@@ -8,42 +8,30 @@ Parameters::Parameters():
 	 numInputs(0)
 	,numOutputs(0)
 
+//to keep fixed
 	,mutateRateNewConnection(0.2f)
 	,mutateRateNewNode(0.1f)
 	,mutateRateWeightPerturbation(0.2f)
 	,mutateMaxPerturbation(0.75f)
-//to keep fixed
-	,minInitWeight(-1.0f)
-	,maxInitWeight(1.0f)
+	,mutateRateEnableChance(0.875)
+	,enableInExcessOrDisjoint(true)
 
+	,maxInitWeight(-1.0f)
+	,maxWeight(8.0f)
+
+	// Species similarity weighting factors
+	,excessFactor(1.0f)
+ 	,disjointFactor(1.0f)
+ 	,averageWeightDifferenceFactor(0.4f)
+ 	,inputCountDifferenceFactor(1.5f)
+ 	,outputCountDifferenceFactor(1.5f)
+
+	,speciationTolerance(2.2f)
+	,preferSimilarFactor(0.05f)
+	
 //private
 	,allConnections(0)
 	,innovationNumber(0) // = allConnections.size()
-//old
-// ,mutateRateDisableChange(0.125f)
-// _speciationTolerance(2.2f),
-// _preferSimilarFactor(0.05f),
-// _reproduceRatio(0.9f),
-// _newConnectionMutationRate(0.2f),
-// _newNodeMutationRate(0.1f),
-// _weightPerturbationChance(0.2f),
-// _disableGeneChance(0.125f),
-// _minInitWeight(-1.0f),
-// _maxInitWeight(1.0f),
-// _minInitBias(-1.0f),
-// _maxInitBias(1.0f),
-// _minWeight(-8.0f),
-// _maxWeight(8.0f),
-// _minBias(-8.0f),
-// _maxBias(8.0f),
-// _maxPerturbation(0.75f),
-// _excessFactor(1.0f),
-// _disjointFactor(1.0f),
-// _averageWeightDifferenceFactor(0.4f),
-// _inputCountDifferenceFactor(1.5f),
-// _outputCountDifferenceFactor(1.5f),
-// _populationSize(40),
-// _numElites(6)
 {}
 
 Parameters::~Parameters(){ clear(); }

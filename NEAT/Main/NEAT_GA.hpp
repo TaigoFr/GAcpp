@@ -13,5 +13,7 @@ namespace NEAT{
 		void evolve(unsigned eliteCount, double crossoverProb, double mutateProb);
 
 		Parameters params;
+	private:
+		unsigned selectParent(const VecD& fitness_cumulative, int other = -1);
 	};
 };

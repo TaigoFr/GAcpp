@@ -12,37 +12,26 @@ class Parameters{
 		unsigned numInputs; //+1 -> bias
 		unsigned numOutputs;
 
+//to keep fixed
 		float mutateRateNewConnection;
 		float mutateRateNewNode;
 		float mutateRateWeightPerturbation;
 		float mutateMaxPerturbation;
+		float mutateRateEnableChance;
+		bool  enableInExcessOrDisjoint;
 
-//to keep fixed
-		float minInitWeight;
 		float maxInitWeight;
+		float maxWeight;
 
-//old
-		// float mutateRateDisableChange;
+		// Species similarity weighting factors
+		float excessFactor;
+		float disjointFactor;
+		float averageWeightDifferenceFactor;
+		float inputCountDifferenceFactor;
+		float outputCountDifferenceFactor;
 
-		// float _speciationTolerance;
-		// float _preferSimilarFactor;
-		// float _reproduceRatio;
-
-		// float _minWeight;
-		// float _maxWeight;
-		// float _minBias;
-		// float _maxBias;
-
-		// // Species similarity weighting factors
-		// float _excessFactor;
-		// float _disjointFactor;
-		// float _averageWeightDifferenceFactor;
-		// float _inputCountDifferenceFactor;
-		// float _outputCountDifferenceFactor;
-
-		// size_t _populationSize;
-
-		// size_t _numElites;
+		float speciationTolerance;
+		float preferSimilarFactor;
 
 		Parameters();
 		~Parameters();
