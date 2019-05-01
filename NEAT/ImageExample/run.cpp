@@ -30,7 +30,7 @@ int main(){
 
 	//image.print();
 	image.draw();
-	image.save();
+	// image.save();
 	image.wait();
 
 	/////////////////////////////////////////////////////
