@@ -1,5 +1,6 @@
 
 #include "Image.hpp"
+#include "Node.hpp"
 
 using namespace NEAT;
 
@@ -113,7 +114,7 @@ double Image::evaluate(const MatrixD& mat, const GA::Evolver<MatrixD>* ev){
 
 	return attraction + repulsion;
 }
-std::string	Image::toString(const MatrixD& M){ return M.toString(" "); } //" " so that a \n is inserted after title in MatrixD::toString
+std::string	Image::toString(const MatrixD& M){ return ""; }//M.toString(" "); } //" " so that a \n is inserted after title in MatrixD::toString
 
 double Image::nodeDistance(const MatrixD& mat, unsigned n1, unsigned n2, double power){
 	if(n1==0 || n2==0 || n1 > mat.getNL() || n2 > mat.getNL())
@@ -132,39 +133,62 @@ double Image::nodeDistance(const MatrixD& mat, unsigned n1, unsigned n2, double 
 }
 
 void Image::print(){ std::cout << toString(getBest()) << std::endl; }
-void Image::draw(){
-	/*
+void Image::draw(float screenWidth, float screenHeight){
+	window.create(sf::VideoMode(screenWidth, screenHeight), "Visualizer");
+	window.clear(sf::Color::White);
+	
 	// display SFMl image of network
 	const std::vector<Connection*> &connections = net->getConnections();
 	const MatrixD& nodes = getBest();
 
 	//ATTENTION - node '0' is 'bias' node. Matrix 'nodes' starts on node 1!
 
-	//examples on how to use
-	
-	for(unsigned i=0; i<nodes.getNL(); ++i){
-		double x 	= nodes[i][0];
-		double y 	= nodes[i][1];
-		double bias = nodes[i][2];
-
-		//draw node [x,y,bias]
-		// ...
-	}
-
-
 	for(unsigned i=0, size=connections.size(); i<size; ++i){
 		unsigned pre = connections[i]->pre;
 		if(pre==0) continue; //bias
 
 		unsigned pos = connections[i]->pos;
-		//draw line from nodes[pre-1] to nodes[pos-1]
-		// ...
+
+		sf::Vertex line[] =
+		{
+			sf::Vertex(sf::Vector2f(nodes[pre - 1][0] * screenWidth, nodes[pre - 1][1] * screenHeight)),
+			sf::Vertex(sf::Vector2f(nodes[pos - 1][0] * screenWidth, nodes[pos - 1][1] * screenHeight))
+		};
+		float color = Node::sigmoid(connections[i]->weight);
+		line[0].color = sf::Color((1 - color) * 255, color * 255, 100);
+		line[1].color = sf::Color((1 - color) * 255, color * 255, 100);
+
+		window.draw(line, 2, sf::Lines);
 	}
-	*/
+
+	sf::CircleShape circle;
+	circle.setRadius(20.f);
+	circle.setOrigin(20, 20);
+	circle.setOutlineColor(sf::Color::Black);
+	circle.setOutlineThickness(1.f);
+
+	for(unsigned i=0; i<nodes.getNL(); ++i){
+		circle.setPosition(nodes[i][0] * screenWidth, nodes[i][1] * screenHeight);
+
+		float color = Node::sigmoid(nodes[i][2]);
+		circle.setFillColor(sf::Color((1 - color) * 255, color * 255, 100));
+
+		window.draw(circle);
+	}
+
+	window.display();
 }
 void Image::wait(){
-	//wait until SFML window is closed
+	sf::Event event;
+	while (window.isOpen())
+	{
+		window.pollEvent(event);
+		if (event.type == sf::Event::Closed || (event.type == sf::Event::KeyPressed && (event.key.code == sf::Keyboard::Escape || event.key.code == sf::Keyboard::Return))) {
+			close();
+			break;
+		}
+	}
 }
 void Image::close(){
-	//force SFML window to close
+	window.close();
 }

@@ -16,7 +16,7 @@ USER_FLAGS  := -Wall -Wextra -std=c++11 -fopenmp
 
 # ROOT_LD 	:= $(shell root-config --libs)
 # ROOT_CC 	:= $(shell root-config --cflags)
-# SFML_LD 	:= -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
+SFML_LD 	:= -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
 
 # VALGRIND	:= -g -O0
 VALGRIND	:= -O2

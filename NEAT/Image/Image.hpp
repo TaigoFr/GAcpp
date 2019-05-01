@@ -1,5 +1,7 @@
 #pragma once
 
+#include <SFML/Graphics.hpp>
+
 #include "Matrix.hpp"
 #include "Evolver.hpp"
 #include "Network.hpp"
@@ -12,7 +14,7 @@ namespace NEAT{
 
 		void evolve(unsigned _maxGenerations, unsigned eliteCount, double crossoverProb, double mutateProb);
 		void print(); //prints positions to command line
-		void draw();  //display SFMl image of network
+		void draw(float screenWidth = 1600.f, float screenHeight = 1200.f);  //display SFMl image of network
 		void wait();  //wait until SFML window is closed
 		void close(); //force SFML window to close
 
@@ -31,6 +33,8 @@ namespace NEAT{
 		double connectionAttractionPower;
 		double nodeRepulsionPower;
 		double nodeRepulsionCoeff;
+
+		sf::RenderWindow window;
 
 		static double nodeDistance(const MatrixD&, unsigned n1, unsigned n2, double power); //n1 and n2 are nodes, not matrix entries (node 0 is bias and is not in matrix)
 	};
