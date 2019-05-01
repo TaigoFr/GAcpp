@@ -14,9 +14,10 @@ namespace NEAT{
 
 		void evolve(unsigned _maxGenerations, unsigned eliteCount, double crossoverProb, double mutateProb);
 		void print(); //prints positions to command line
-		void draw(float screenWidth = 1600.f, float screenHeight = 1200.f);  //display SFMl image of network
+		void draw(float screenWidth = 1200.f, float screenHeight = 900.f);  //display SFMl image of network
 		void wait();  //wait until SFML window is closed
 		void close(); //force SFML window to close
+		void save(const std::string& name = ""); //save image to file
 
 		//functions for GA::Evolver
 		static MatrixD 		create 	 (const GA::Evolver<MatrixD>*);

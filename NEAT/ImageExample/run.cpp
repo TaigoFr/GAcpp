@@ -15,7 +15,7 @@ int main(){
 	ga.params.mutateRateNewNode = 1;
 	ga.params.mutateRateNewConnection = 1;
 	ga.setEvaluate(random, GA::MINIMIZE);
-	ga.maxGenerations = 5;
+	ga.maxGenerations = 3;
 	ga.evolve(0,1,1);
 
 	/////////////////////////////////////////////////////
@@ -30,6 +30,7 @@ int main(){
 
 	//image.print();
 	image.draw();
+	image.save();
 	image.wait();
 
 	/////////////////////////////////////////////////////

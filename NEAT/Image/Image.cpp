@@ -5,6 +5,8 @@
 using namespace NEAT;
 
 #include <cmath> //powf
+#include <ctime> //time, gmtime, clock
+#include <iomanip> //std::setfill, std::setw
 
 Image::Image(const Network& net, unsigned _populationSize, double _margin):
 															 GA::Evolver<MatrixD>(_populationSize)
@@ -128,7 +130,7 @@ double Image::nodeDistance(const MatrixD& mat, unsigned n1, unsigned n2, double 
 	if(power==0)
 		return 1;
 	if(norm2==0)
-		return (power<0 ? 1.e308 : 0.);
+		return (power<0 ? 1.e10 : 0.);
 	return pow(norm2,power/2.);
 }
 
@@ -191,4 +193,31 @@ void Image::wait(){
 }
 void Image::close(){
 	window.close();
+}
+
+void Image::save(const std::string& name){
+	std::ostringstream str;
+	if(name!=""){
+		str << name;
+		if(name.substr( name.size()-4, 4 ) != ".jpg" && name.substr( name.size()-4, 4 ) != ".png")
+			str << ".png";
+	}
+	else{
+		time_t date_t = time(NULL);
+		struct tm * date = gmtime(&date_t);
+		str << "NEAT_Image_";
+		str << std::setw(2) << std::setfill('0') << date->tm_mday;
+		str << std::setw(2) << std::setfill('0') << date->tm_mon+1;
+		str << std::setw(2) << std::setfill('0') << date->tm_year-100;
+		str << "_" << std::setw(2) << std::setfill('0') << date->tm_hour;
+		str << std::setw(2) << std::setfill('0') << date->tm_min;
+		str << std::setw(2) << std::setfill('0') << date->tm_sec;
+		str << "_" << (int)clock()%1000; 
+		str << ".png"; 
+	}
+
+	sf::Texture texture;
+	texture.create(window.getSize().x, window.getSize().y);
+	texture.update(window);
+	texture.copyToImage().saveToFile(str.str());
 }
