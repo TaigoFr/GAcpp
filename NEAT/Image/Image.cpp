@@ -9,7 +9,7 @@ using namespace NEAT;
 #include <iomanip> //std::setfill, std::setw
 
 Image::Image(const Network& net, unsigned _populationSize, double _margin):
-															 GA::Evolver<MatrixD>(_populationSize)
+															 GA::Evolver<MatrixD>(_populationSize, false)
 															// ,numInputs(net.getNumInputs())
 															// ,numOutputs(net.getNumOutputs())
 															// ,numNodes(net.getNumNodes())
@@ -18,7 +18,7 @@ Image::Image(const Network& net, unsigned _populationSize, double _margin):
 															,maxMutation(0.1)
 															,connectionAttractionPower(2.)
 															,nodeRepulsionPower(-1.)
-															,nodeRepulsionCoeff(1./4.)
+															,nodeRepulsionCoeff(6./4.)
 {
 	setCreate(Image::create);
 	setCrossover(Image::crossover);
@@ -52,8 +52,8 @@ MatrixD Image::create(const GA::Evolver<MatrixD>* ev){
 	}
 	static double epsilon = 1e-3; //to avoid overlap with input or output
 	for(unsigned i=1+numInputs+numOutputs; i<numNodes; ++i){
-		out[i-1][0] = GA::generator(margin + epsilon, 1. - margin - epsilon);
-		out[i-1][1] = GA::generator(margin, 1. - margin);
+		out[i-1][0] = GA::generator(2.*margin + epsilon, 1. - 2.*margin - epsilon);
+		out[i-1][1] = GA::generator(2.*margin, 1. - 2.*margin);
 		out[i-1][2] = ((Image*)ev)->net->getBias(i);
 	}
 
@@ -84,25 +84,30 @@ void Image::mutate(MatrixD& mat, const GA::Evolver<MatrixD>* ev){
 
 	for(unsigned i = numInputs+numOutputs; i<mat.getNL(); ++i){ //only mutate hidden nodes (recall that bias is not in 'mat')
 		mat[i][0] += GA::generator(-maxMutation,maxMutation);
-		if(mat[i][0]<margin+epsilon)
-			mat[i][0] = margin+epsilon;
-		else if(mat[i][0]>1.-(margin+epsilon))
-			mat[i][0] = 1.-(margin+epsilon);
+		if(mat[i][0]<2.*margin+epsilon)
+			mat[i][0] = 2.*margin+epsilon;
+		else if(mat[i][0]>1.-(2.*margin+epsilon))
+			mat[i][0] = 1.-(2.*margin+epsilon);
 
 		mat[i][1] += GA::generator(-maxMutation,maxMutation);
 		if(mat[i][1]<margin)
-			mat[i][1] = margin;
-		else if(mat[i][1]>1.-margin)
-			mat[i][1] = 1.-margin;
+			mat[i][1] = 2.*margin;
+		else if(mat[i][1]>1.-2.*margin)
+			mat[i][1] = 1.-2.*margin;
 	}
 }
 double Image::evaluate(const MatrixD& mat, const GA::Evolver<MatrixD>* ev){
 	const std::vector<Connection*> &connections = ((Image*)ev)->net->getConnections();
 
+	// unsigned numInputs 	= ((Image*)ev)->net->getNumInputs();
+	// unsigned numOutputs = ((Image*)ev)->net->getNumOutputs();
 
+	// bool extraRepulsion = true;
 	double attraction = 0.;
 	for(unsigned i=0, size = connections.size(); i<size; ++i){
 		if(connections[i]->pre==0 || !connections[i]->getEnabled()) continue; //bias connection
+		// if(connections[i]->pre!=0 && connections[i]->pre<=numInputs && connections[i]->pos > numInputs && connections[i]->pos <= numInputs+numOutputs)
+			// extraRepulsion = true;
 		attraction += nodeDistance(mat,connections[i]->pre,connections[i]->pos,((Image*)ev)->connectionAttractionPower);
 	}
 
@@ -113,10 +118,11 @@ double Image::evaluate(const MatrixD& mat, const GA::Evolver<MatrixD>* ev){
 
 	unsigned numHidden 	= ((Image*)ev)->net->getNumHidden();
 	repulsion *= ((Image*)ev)->nodeRepulsionCoeff * 1. / pow(sqrt(numHidden)+1, 3); //see Tests2.nb Mathematica Notebook
+	// if(extraRepulsion) repulsion *= 6.; //repulse more if inputs are connected to outputs
 
 	return attraction + repulsion;
 }
-std::string	Image::toString(const MatrixD& M){ return ""; }//M.toString(" "); } //" " so that a \n is inserted after title in MatrixD::toString
+std::string	Image::toString(const MatrixD& M){ return M.toString("  "); } //" " so that a \n is inserted after title in MatrixD::toString
 
 double Image::nodeDistance(const MatrixD& mat, unsigned n1, unsigned n2, double power){
 	if(n1==0 || n2==0 || n1 > mat.getNL() || n2 > mat.getNL())
@@ -151,21 +157,19 @@ void Image::draw(float screenWidth, float screenHeight){
 
 		unsigned pos = connections[i]->pos;
 
-		sf::Vertex line[] =
-		{
-			sf::Vertex(sf::Vector2f(nodes[pre - 1][0] * screenWidth, nodes[pre - 1][1] * screenHeight)),
-			sf::Vertex(sf::Vector2f(nodes[pos - 1][0] * screenWidth, nodes[pos - 1][1] * screenHeight))
-		};
 		float color = Node::sigmoid(connections[i]->weight);
-		line[0].color = sf::Color((1 - color) * 255, color * 255, 100);
-		line[1].color = sf::Color((1 - color) * 255, color * 255, 100);
-
-		window.draw(line, 2, sf::Lines);
+		float thickness = 6.f * (0.1 + 0.9 * atan( fabs(connections[i]->weight)/4.f ) * 2.f / M_PI); //empirically tested
+		sf::RectangleShape rect = createRect(nodes[pre - 1][0] * screenWidth, nodes[pre - 1][1] * screenHeight,
+											 nodes[pos - 1][0] * screenWidth, nodes[pos - 1][1] * screenHeight,
+											 thickness,
+											 sf::Color((1 - color) * 255, color * 255, 0));
+		window.draw(rect);
 	}
 
 	sf::CircleShape circle;
-	circle.setRadius(20.f);
-	circle.setOrigin(20, 20);
+	float radius = (exp( - (net->getNumNodes() * net->getNumNodes() / 500.f) ) * 0.8 + 0.2) * 20.f; //experimentally tested
+	circle.setRadius(radius);
+	circle.setOrigin(radius, radius);
 	circle.setOutlineColor(sf::Color::Black);
 	circle.setOutlineThickness(1.f);
 
@@ -220,4 +224,14 @@ void Image::save(const std::string& name){
 	texture.create(window.getSize().x, window.getSize().y);
 	texture.update(window);
 	texture.copyToImage().saveToFile(str.str());
+}
+
+
+sf::RectangleShape Image::createRect(float x1, float y1, float x2, float y2, float thickness, sf::Color color) {
+	sf::RectangleShape rect;
+	rect.setPosition(x1, y1);
+	rect.setSize(sf::Vector2f(std::sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)), thickness));
+	rect.setFillColor(color);
+	rect.setRotation(atan2(y2 - y1, x2 - x1) * 180.f / M_PI);
+	return rect;
 }

@@ -73,7 +73,7 @@ int main(){
 	ga2.setEvaluate(Benchmarks::rastrigin, GA::MINIMIZE);
 	ga2.setMutate(mutate_rastrigin);
 	ga2.setToString(toString);
-	// ga2.numThreads = 0;
+	// ga2.numThreads = 7;
 	ga2.maxGenerations = 1000;
 	ga2.evolve(10,0.7,0.1);
 

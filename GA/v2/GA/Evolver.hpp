@@ -30,7 +30,7 @@ namespace GA{
 	template <typename Ind>
 	class Evolver{
 	public:
-		Evolver(unsigned _populationSize);
+		Evolver(unsigned _populationSize, bool _verbose = true);
 		~Evolver();
 
 		void evolve(unsigned eliteCount, double crossoverProb, double mutateProb);
@@ -69,6 +69,7 @@ namespace GA{
 
 		Objective obj;
 		unsigned generationStep;
+		bool verbose;
 
 		void clear();
 

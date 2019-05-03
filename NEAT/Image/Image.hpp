@@ -10,7 +10,7 @@ namespace NEAT{
 
 	class Image: public GA::Evolver<MatrixD>{
 	public:
-		Image(const Network&, unsigned _populationSize, double _margin = 0.05);
+		Image(const Network&, unsigned _populationSize, double _margin = 0.03);
 
 		void evolve(unsigned _maxGenerations, unsigned eliteCount, double crossoverProb, double mutateProb);
 		void print(); //prints positions to command line
@@ -38,5 +38,6 @@ namespace NEAT{
 		sf::RenderWindow window;
 
 		static double nodeDistance(const MatrixD&, unsigned n1, unsigned n2, double power); //n1 and n2 are nodes, not matrix entries (node 0 is bias and is not in matrix)
+		static sf::RectangleShape createRect(float x1, float y1, float x2, float y2, float thickness, sf::Color color);
 	};
 };

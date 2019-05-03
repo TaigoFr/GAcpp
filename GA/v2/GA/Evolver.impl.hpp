@@ -8,26 +8,27 @@
 #include <omp.h>
 
 template <typename Ind>
-Evolver<Ind>::Evolver(unsigned _populationSize):
-	maxGenerations(100)
-	,tolStallAverage(1.e-6)
-	,averageStallMax(15)
-	,tolStallBest(1.e-8)
-	,bestStallMax(15)
-	,numThreads(1)
+Evolver<Ind>::Evolver(unsigned _populationSize, bool _verbose):
+maxGenerations(100)
+,tolStallAverage(1.e-6)
+,averageStallMax(15)
+,tolStallBest(1.e-8)
+,bestStallMax(15)
+,numThreads(1)
 
-	,populationSize(_populationSize)
-	,population(new Population<Ind>(populationSize))
+,populationSize(_populationSize)
+,population(new Population<Ind>(populationSize))
 
-	,create(nullptr)
-	,crossover(nullptr)
-	,mutate(mutate_default)
-	,evaluate(nullptr)
-	,toString(toString_default)
+,create(nullptr)
+,crossover(nullptr)
+,mutate(mutate_default)
+,evaluate(nullptr)
+,toString(toString_default)
 
-	,C("",Clock::stop)
-	,obj(NONE)
-	,generationStep(0)
+,C("",Clock::stop)
+,obj(NONE)
+,generationStep(0)
+,verbose(_verbose)
 {
 	assert(populationSize >= 2);
 	C.setVerbose(false);
@@ -53,25 +54,31 @@ double 	Evolver<Ind>::getBestFitness() const{ return population->pop[population-
 
 template <typename Ind>
 void Evolver<Ind>::evolve(unsigned eliteCount, double crossoverProb, double mutateProb){
-	std::cout << "****************************************"	<< std::endl;
-	std::cout << "*            Evolver started           *" << std::endl;
-	std::cout << "****************************************" << std::endl;
-	std::cout << "population:\t\t" 		<< populationSize 		<< std::endl;
-	std::cout << "eliteCount:\t\t" 		<< eliteCount 			<< std::endl;
-	std::cout << "crossoverProb:\t\t" 	<< crossoverProb 			<< std::endl;
-	std::cout << "mutationProb:\t\t" 	<< mutateProb 			<< std::endl;
+	if(verbose){
+		std::cout << "****************************************"	<< std::endl;
+		std::cout << "*            Evolver started           *" << std::endl;
+		std::cout << "****************************************" << std::endl;
+		std::cout << "population:\t\t" 		<< populationSize 		<< std::endl;
+		std::cout << "eliteCount:\t\t" 		<< eliteCount 			<< std::endl;
+		std::cout << "crossoverProb:\t\t" 	<< crossoverProb 			<< std::endl;
+		std::cout << "mutationProb:\t\t" 	<< mutateProb 			<< std::endl;
+	}
 
 	checkSettings(eliteCount, crossoverProb, mutateProb);
 
 	unsigned num;
 	#pragma omp parallel
+	{
 		#pragma omp master
-			num = omp_get_num_threads();
+		num = omp_get_num_threads();
+	}
 	if(num!=numThreads && numThreads!=0)
 		omp_set_num_threads(numThreads);
 
-	std::cout << "OMP_NUM_THREADS:\t" 	<< (numThreads ? numThreads : num) << std::endl;
-	std::cout << "****************************************" << std::endl;
+	if(verbose){
+		std::cout << "OMP_NUM_THREADS:\t" 	<< (numThreads ? numThreads : num) << std::endl;
+		std::cout << "****************************************" << std::endl;
+	}
 
 	StopReason stop = StopReason::Undefined;
 	
@@ -89,20 +96,23 @@ void Evolver<Ind>::evolve(unsigned eliteCount, double crossoverProb, double muta
 		stop = updateFitness();
 		printGen();
 	}
-	printStopReason(stop);
+	if(verbose) printStopReason(stop);
 	// printPopulation();
 
-	C.setVerbose(true);
-	C("Total time: ","s\n");
-	C.setVerbose(false);
-
-	std::cout << "****************************************" << std::endl;
+	if(verbose){
+		C.setVerbose(true);
+		double time = C("Total time: ","s\n");
+		C.setVerbose(false);
+		std::cout << "Time/Generation: " << time/generationStep << "s" << std::endl;
+		std::cout << "****************************************" << std::endl;
+	}
 }
 
 template <typename Ind>
 void Evolver<Ind>::printGen(){
-	printf("Generation [%3d]; Best=%.3e; Average=%.3e; Best genes=%s; Time=%lfs\n",
-		generationStep,population->pop[population->bestRank]->fitness,population->fitnessSum/populationSize,toString(population->pop[population->bestRank]->I).c_str(),C.L());
+	if(verbose)
+		printf("Generation [%3d]; Best=%.3e; Average=%.3e; Best genes=%s; Time=%lfs\n",
+			generationStep,population->pop[population->bestRank]->fitness,population->fitnessSum/populationSize,toString(population->pop[population->bestRank]->I).c_str(),C.L());
 }
 
 
@@ -135,12 +145,8 @@ unsigned Evolver<Ind>::selectParent(const VecD& fitness_cumulative, int other)
 
 template <typename Ind>
 void Evolver<Ind>::findElite(unsigned eliteCount){
-	if(obj == MINIMIZE)
-		std::partial_sort(population->pop.begin(), population->pop.begin()+eliteCount, population->pop.end(), 
-			[this](Individual<Ind>* left, Individual<Ind>* right) {return (left==nullptr || right==nullptr) ? false : ((left->fitness_norm) > (right->fitness_norm)); });
-	else
-		std::partial_sort(population->pop.begin(), population->pop.begin()+eliteCount, population->pop.end(), 
-			[this](Individual<Ind>* left, Individual<Ind>* right) {return (left==nullptr || right==nullptr) ? false : ((left->fitness_norm) < (right->fitness_norm)); });
+	std::partial_sort(population->pop.begin(), population->pop.begin()+eliteCount, population->pop.end(), 
+		[this](Individual<Ind>* left, Individual<Ind>* right) {return (left==nullptr || right==nullptr) ? false : ((left->fitness_norm) > (right->fitness_norm)); });
 }
 
 
@@ -175,13 +181,15 @@ void Evolver<Ind>::generation(unsigned eliteCount, double crossoverProb, double 
 		if(ind < crossoverLast){
 			unsigned parent2 = selectParent(population->fitness_cumulative, parent1);
 			child = new Individual<Ind>(crossover(population->pop[parent1]->I,population->pop[parent2]->I,
-												population->pop[parent1]->fitness,population->pop[parent2]->fitness));
+				population->pop[parent1]->fitness,population->pop[parent2]->fitness));
 		}
 		else
 			child = new Individual<Ind>(*population->pop[parent1]);
 
-		if(generator.getD() <= mutateProb)
+		if(generator.getD() <= mutateProb){
 			mutate(child->I,this);
+			if(child->evaluated) child->evaluated = false;
+		}
 
 		offspring->pop[ind] = child;
 	}
@@ -200,8 +208,10 @@ void Evolver<Ind>::generation(unsigned eliteCount, double crossoverProb, double 
 
 
 template <typename Ind>
-void Evolver<Ind>::initiatePopulation()
-{ for(unsigned i=0; i<populationSize; ++i) population->pop[i] = new Individual<Ind>(create(this)); }
+void Evolver<Ind>::initiatePopulation(){
+	#pragma omp parallel for default(none) shared(population, populationSize)
+	for(unsigned i=0; i<populationSize; ++i) population->pop[i] = new Individual<Ind>(create(this));
+}
 
 template <typename Ind>
 StopReason Evolver<Ind>::updateFitness(){
@@ -213,58 +223,51 @@ StopReason Evolver<Ind>::updateFitness(){
 	population->fitnessSum_norm = 0.;
 
 	double maxfitness = -std::numeric_limits<double>::infinity();
+	double minfitness = -maxfitness;
 
-	Individual<Ind>* ind; //to avoid repeating the line twice in the if, else, but not needed outside
-	if(obj == MAXIMIZE){
+	double fitnessSum = 0.;
+	unsigned bestRank = 0;
 
-		for(unsigned i=0; i<populationSize; ++i){
-			ind = population->pop[i];
-			if(ind!=nullptr){
-				double fitness = evaluate(ind->I,this);
-				
-				ind->fitness 			= fitness;
-				population->fitnessSum += ind->fitness_norm;
+	#pragma omp parallel for \
+	default(none) \
+	shared(populationSize, bestRank) \
+	reduction(+:fitnessSum) \
+	reduction(max:maxfitness) \
+	reduction(min:minfitness)
+	for(unsigned i=0; i<populationSize; ++i){
+		Individual<Ind>* ind = population->pop[i];
+		if(ind!=nullptr){
+			if(!ind->evaluated)
+				ind->fitness = evaluate(ind->I,this);
 
-				ind->fitness_norm 			 = fitness;
-				population->fitnessSum_norm += ind->fitness_norm;
-				population->fitness_cumulative[i] = population->fitnessSum_norm;
+			fitnessSum += ind->fitness;
 
-				if(fitness>maxfitness){
-					population->bestRank = i;
-					maxfitness = fitness;
-				}
-
-
+			if(ind->fitness > maxfitness){
+				if(obj==MAXIMIZE)
+					#pragma omp critical
+					bestRank = i;
+				maxfitness = ind->fitness;
+			}
+			if(ind->fitness < minfitness){
+				if(obj==MINIMIZE)
+					#pragma omp critical
+					bestRank = i;
+				minfitness = ind->fitness;
 			}
 		}
 	}
-	else{ //MINIMIZE
 
-		double minfitness = -maxfitness;
+	population->fitnessSum = fitnessSum;
+	population->bestRank   = bestRank;
 
-		for(unsigned i=0; i<populationSize; ++i){
-			ind = population->pop[i];
-			if(ind!=nullptr){
-				double fitness = evaluate(ind->I,this);
-
-				ind->fitness 			= fitness;
-				population->fitnessSum += ind->fitness;
-
-				if(fitness>maxfitness)	maxfitness = fitness;
-				if(fitness<minfitness){
-					population->bestRank = i;
-					minfitness = fitness;
-				}
-			}
-		}
-
-		for(unsigned i=0; i<populationSize; ++i){
-			ind = population->pop[i];
-			if(ind!=nullptr){
-				ind->fitness_norm 			 = maxfitness - ind->fitness + minfitness; //invert fitnesses - swap max for min in order to minimize fitness
-				population->fitnessSum_norm += ind->fitness_norm;
-				population->fitness_cumulative[i] = population->fitnessSum_norm;
-			}
+	for(unsigned i=0; i<populationSize; ++i){
+		Individual<Ind>* ind = population->pop[i];
+		if(ind!=nullptr){
+			//invert fitnesses for minimize
+			ind->fitness_norm 			 	  = (obj==MAXIMIZE ? ind->fitness - minfitness : maxfitness - ind->fitness);
+			ind->evaluated 					  = true;
+			population->fitnessSum_norm 	 += ind->fitness_norm;
+			population->fitness_cumulative[i] = population->fitnessSum_norm;
 		}
 	}
 
@@ -342,7 +345,7 @@ void Evolver<Ind>::printPopulation() const{
 
 template <typename Ind> void Evolver<Ind>::setCreate 	(Ind 		(*func)	(const Evolver<Ind>*))							{ create 	= func; }
 template <typename Ind> void Evolver<Ind>::setCrossover	(Ind 		(*func)	(const Ind&,const Ind&,
-																			double fit1, double fit2))						{ crossover	= func; }
+double fit1, double fit2))						{ crossover	= func; }
 template <typename Ind> void Evolver<Ind>::setMutate	(void 		(*func)	(Ind&, const Evolver<Ind>*))					{ mutate 	= func; }
 template <typename Ind> void Evolver<Ind>::setEvaluate	(double		(*func)	(const Ind&, const Evolver<Ind>*), Objective o)	{ evaluate 	= func; obj = o; }
 template <typename Ind> void Evolver<Ind>::setToString	(std::string(*func)	(const Ind&))									{ toString	= func; }

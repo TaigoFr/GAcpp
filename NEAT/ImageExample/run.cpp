@@ -15,7 +15,7 @@ int main(){
 	ga.params.mutateRateNewNode = 1;
 	ga.params.mutateRateNewConnection = 1;
 	ga.setEvaluate(random, GA::MINIMIZE);
-	ga.maxGenerations = 3;
+	ga.maxGenerations = 50;
 	ga.evolve(0,1,1);
 
 	/////////////////////////////////////////////////////
@@ -25,10 +25,10 @@ int main(){
 	//PLOT BEST NETWORK
 	getchar();
 
-	NEAT::Image image(ga.getBest(),100,0.05);
-	image.evolve(1000,5,0.1,0.6);
+	NEAT::Image image(ga.getBest(),100);
+	image.evolve(2000,5,0.2,0.5);
 
-	//image.print();
+	image.print();
 	image.draw();
 	// image.save();
 	image.wait();
