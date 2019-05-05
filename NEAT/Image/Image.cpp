@@ -159,16 +159,16 @@ void Image::draw(float screenWidth, float screenHeight){
 		unsigned pos = connections[i]->pos;
 
 		float color = Node::sigmoid(connections[i]->weight);
-		float thickness = 6.f * (0.1 + 0.9 * atan( fabs(connections[i]->weight)/4.f ) * 2.f / M_PI); //empirically tested
+		float mod = atan( fabs(connections[i]->weight)/4.f ) * 2.f / M_PI; 											//empirically tested
 		sf::RectangleShape rect = createRect(nodes[pre - 1][0] * screenWidth, nodes[pre - 1][1] * screenHeight,
 											 nodes[pos - 1][0] * screenWidth, nodes[pos - 1][1] * screenHeight,
-											 thickness,
-											 sf::Color((1 - color) * 255, color * 255, 0));
+											 6.f * ( 0.1 + 0.9 * mod ),												//empirically tested
+											 sf::Color((1 - color) * 255, color * 255, 0, 255*(0.3+0.3*mod))); 		//empirically tested
 		window.draw(rect);
 	}
 
 	sf::CircleShape circle;
-	float radius = (exp( - (net->getNumNodes() * net->getNumNodes() / 500.f) ) * 0.8 + 0.2) * 20.f; //experimentally tested
+	float radius = (exp( - (net->getNumNodes() * net->getNumNodes() / 500.f) ) * 0.8 + 0.2) * 20.f; 				//experimentally tested
 	circle.setRadius(radius);
 	circle.setOrigin(radius, radius);
 	circle.setOutlineColor(sf::Color::Black);
