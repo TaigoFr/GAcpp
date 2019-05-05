@@ -9,6 +9,7 @@ namespace NEAT{
 	class Network{
 	public:
 		Network(bool _initialize, Parameters &_params);
+		Network(const std::string& file);
 
 		Network(const Network&);
 		Network(Network&&);
@@ -16,6 +17,10 @@ namespace NEAT{
 		void clear();
 		Network& operator=(const Network&) = delete;
 		Network& operator=(Network&&) = delete;
+
+		void write(const std::string& path);
+		void read (const std::string& path);
+		void print();
 
 		//functions for GA::Evolver
 		static Network 		create 	 (const GA::Evolver<Network>*);
@@ -36,11 +41,11 @@ namespace NEAT{
 
 		static double getDissimilarity(const Network&, const Network&);
 
-		Parameters &params;
+		Parameters *params;
 	private:
 		//bias is node 0; then come inputs and outputs, and finally hidden
-		const unsigned numInputs, numOutputs, numNonHidden; //numNonHidden = numInputs + numOutput + 1 (bias)
-		unsigned numHidden, numNodes; // numNodes = numNonHidden + numHidden
+		unsigned numInputs, numOutputs, numNonHidden, numHidden, numNodes; // numNonHidden 	= numInputs + numOutput + 1 (bias)
+																		   // numNodes 	 	= numNonHidden + numHidden
 		std::vector<Connection*> connections;
 
 		void initialize();
@@ -54,6 +59,7 @@ namespace NEAT{
 		void addConnection(unsigned from, unsigned to, bool isInit); //doesn't check if connection already exists in Network (only in params)
 		void addConnection(const Connection* con, bool enableChance); //assumess innovationNumber ordering and just copies and pushes back;
 																	//possibly enables connection as 'mutateRateEnableChance'
+
 		void mutatePerturbWeight();
 		bool mutateAddConnection();
 		void mutateAddNode();

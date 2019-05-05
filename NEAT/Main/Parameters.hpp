@@ -1,8 +1,5 @@
 #pragma once
 
-#include <string>
-#include <vector>
-
 #include "Connection.hpp"
 
 namespace NEAT{

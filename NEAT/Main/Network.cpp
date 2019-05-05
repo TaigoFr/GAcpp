@@ -2,30 +2,31 @@
 #include "Network.hpp"
 #include "NEAT_GA.hpp"
 #include "NodeTree.hpp"
+#include "Tools.hpp"
+
 using namespace NEAT;
 
 #include <algorithm> //lower_bound
 #include <cmath> 	 //abs
+#include <fstream>	 //ofstream, ifstream
 
-//TEMPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
-#include <iostream>
-
-Network::Network(bool _initialize, Parameters &_params): params(_params)
-														,numInputs(params.numInputs)
-														,numOutputs(params.numOutputs)
-														,numNonHidden(params.numInputs+params.numOutputs+1)
-														,numHidden(0)
-														,numNodes(numNonHidden)
+Network::Network(bool _initialize, Parameters &_params): params(&_params)
+,numInputs(params->numInputs)
+,numOutputs(params->numOutputs)
+,numNonHidden(params->numInputs+params->numOutputs+1)
+,numHidden(0)
+,numNodes(numNonHidden)
 {
 	if(_initialize) initialize();
 }
+Network::Network(const std::string& file): params(nullptr){ read(file); }
 Network::Network(Network&& other): params(other.params), numInputs(other.numInputs), numOutputs(other.numOutputs)
-								, numNonHidden(other.numNonHidden), numHidden(other.numHidden), numNodes(other.numNodes)
+, numNonHidden(other.numNonHidden), numHidden(other.numHidden), numNodes(other.numNodes)
 {
 	std::swap(connections,other.connections);
 }
 Network::Network(const Network& other): params(other.params), numInputs(other.numInputs), numOutputs(other.numOutputs)
-								, numNonHidden(other.numNonHidden), numHidden(other.numHidden), numNodes(other.numNodes)
+, numNonHidden(other.numNonHidden), numHidden(other.numHidden), numNodes(other.numNodes)
 {
 	unsigned numOtherConnections = other.connections.size();
 	connections.reserve(numOtherConnections);
@@ -36,11 +37,13 @@ Network::Network(const Network& other): params(other.params), numInputs(other.nu
 
 Network::~Network(){ clear(); }
 void Network::clear(){
-	for(unsigned i=0, size=connections.size(); i<size; ++i)
+	for(unsigned i=0, size=connections.size(); i<size; ++i){
 		if(connections[i] != nullptr){
 			delete connections[i];
 			connections[i] = nullptr;
 		}
+	}
+	connections.clear();
 }
 
 
@@ -48,14 +51,14 @@ void Network::initialize(){
 	for(unsigned i=0; i<numInputs+1; ++i)
 		for(unsigned o=numInputs+1; o<numNonHidden; ++o)
 			addConnection(i, o, true);
-}
+	}
 
-bool Network::isOutputNode(unsigned n){
-	return (n>=numInputs+1 && n<numNonHidden);
-}
-unsigned Network::countNode(unsigned n, bool countPreToo){
-	unsigned count = 0;
-	for(unsigned c=0, size=connections.size(); c<size; ++c){
+	bool Network::isOutputNode(unsigned n){
+		return (n>=numInputs+1 && n<numNonHidden);
+	}
+	unsigned Network::countNode(unsigned n, bool countPreToo){
+		unsigned count = 0;
+		for(unsigned c=0, size=connections.size(); c<size; ++c){
 		if(!connections[c]->getEnabled()) continue; //continue if disabled
 		if((countPreToo && connections[c]->pre == n) || connections[c]->pos == n)
 			++count;
@@ -114,30 +117,21 @@ void Network::addNode(unsigned id, bool isInit){
 
 
 void Network::addConnection(unsigned from, unsigned to, bool isInit){ //doesn't check for loops
-	if(to < numInputs+1){
-		std::cout << toString(*this) << std::endl;
-		std::cout << "from = " << from << "; to = " << to << std::endl;
-		throw std::runtime_error("'to' connection can't be an input connection.");
-	}
-	if(isOutputNode(from)){
-		std::cout << toString(*this) << std::endl;
-		std::cout << "from = " << from << "; to = " << to << std::endl;
-		throw std::runtime_error("'from' connection can't be an output connection.");
-	}
-	if(from==to){
-		std::cout << toString(*this) << std::endl;
-		std::cout << "from = " << from << "; to = " << to << std::endl;
-		throw std::runtime_error("'from' = 'to'");
-	}
+if(to < numInputs+1)
+	errorMsg("'to' connection can't be an input connection.\n",toString(*this),"\n","from = ",from,"; to = ",to);
+if(isOutputNode(from))
+	errorMsg("'from' connection can't be an output connection.\n",toString(*this),"\n","from = ",from,"; to = ",to);
+if(from==to)
+	errorMsg("'from' = 'to'\n",toString(*this),"\n","from = ",from,"; to = ",to);
 
-	double weight = (isInit ? GA::generator(-params.maxInitWeight,params.maxInitWeight) : GA::generator(-params.maxWeight,params.maxWeight));
+double weight = (isInit ? GA::generator(-params->maxInitWeight,params->maxInitWeight) : GA::generator(-params->maxWeight,params->maxWeight));
 
-	unsigned where = params.addConnection(from,to);
+unsigned where = params->addConnection(from,to);
 	//check if connection exists but is disabled
-	unsigned ind = connectionExists(from,to,true);
-	if(ind<connections.size()){
+unsigned ind = connectionExists(from,to,true);
+if(ind<connections.size()){
 		if(connections[ind]->getEnabled()) //bias
-			throw std::runtime_error("Trying to add already existing connection.");
+			errorMsg("Trying to add already existing connection.");
 		else
 			connections[ind]->enable();
 	}
@@ -167,7 +161,7 @@ void Network::addConnection(const Connection* con, bool enableChance){
 	}
 
 	if(enableChance){ //if it came from parents where at least one had it disabled, there's a change it remains disabled and a change to re-enable (re-express gene)
-		if(GA::generator() < params.mutateRateEnableChance)
+		if(GA::generator() < params->mutateRateEnableChance)
 			new_connection->enable();
 		else
 			new_connection->disable();
@@ -175,13 +169,12 @@ void Network::addConnection(const Connection* con, bool enableChance){
 }
 
 
-
 Network Network::create(const GA::Evolver<Network>* ev){
 	Network net(true,((Evolver*)ev)->params);
 	return net;
 }
 Network Network::crossover(const Network& n1, const Network& n2, double fit1, double fit2){
-	if(&n1.params != &n2.params)
+	if(n1.params == nullptr || n2.params == nullptr || n1.params != n2.params)
 		throw std::runtime_error("Parent's parameters not equal.");
 	if(n1.connections.size()==0 || n2.connections.size()==0)
 		throw std::runtime_error("Parents with empty connections.");
@@ -189,23 +182,23 @@ Network Network::crossover(const Network& n1, const Network& n2, double fit1, do
 	unsigned iter1 = 0, inno1 = n1.connections[iter1]->innovationNumber, size1 = n1.connections.size();
 	unsigned iter2 = 0, inno2 = n2.connections[iter2]->innovationNumber, size2 = n2.connections.size();
 
-	unsigned last = n1.params.getInnovationNumber();
+	unsigned last = n1.params->getInnovationNumber();
 
-	Network child(false, n1.params);
+	Network child(false, *n1.params);
 
 	while(inno1 < last && inno2 < last){
 		if(inno1==inno2){
 			// std::cout << "Matching gene " << inno1 << std::endl;
 			child.addConnection(GA::generator() < 0.5 ? n1.connections[iter1] : n2.connections[iter2],
-								(!n1.connections[iter1]->getEnabled() || !n2.connections[iter2]->getEnabled()) );
+				(!n1.connections[iter1]->getEnabled() || !n2.connections[iter2]->getEnabled()) );
 		}
 		else if(inno1<inno2 && (fit1>fit2 || (fit1==fit2 && GA::generator()<0.5))){
 			// std::cout << "Extra gene in N1: " << inno1 << std::endl;
-			child.addConnection(n1.connections[iter1], n1.params.enableInExcessOrDisjoint);
+			child.addConnection(n1.connections[iter1], n1.params->enableInExcessOrDisjoint);
 		}
 		else if(inno1>inno2 && (fit1<fit2 || (fit1==fit2 && GA::generator()<0.5))){
 			// std::cout << "Extra gene in N2: " << inno2 << std::endl;
-			child.addConnection(n2.connections[iter2], n2.params.enableInExcessOrDisjoint);
+			child.addConnection(n2.connections[iter2], n2.params->enableInExcessOrDisjoint);
 		}
 
 		if(inno1<=inno2){
@@ -225,10 +218,10 @@ Network Network::crossover(const Network& n1, const Network& n2, double fit1, do
 	return n1;
 }
 void Network::mutate(Network& child, const GA::Evolver<Network>*){
-	if(GA::generator() < child.params.mutateRateNewNode)
+	if(GA::generator() < child.params->mutateRateNewNode)
 		child.mutateAddNode();
 
-	if(GA::generator() < child.params.mutateRateNewConnection)
+	if(GA::generator() < child.params->mutateRateNewConnection)
 		child.mutateAddConnection();
 
 	child.mutatePerturbWeight();
@@ -240,16 +233,17 @@ std::string	Network::toString(const Network& net){
 	str << "N" << net.getNumNodes() << "H" << net.getNumHidden() << Connection::toString(net.connections);
 	return str.str();
 }
+void Network::print(){ ::print(toString(*this)); }
 
 void Network::mutatePerturbWeight(){
 	for (unsigned i=0, size = connections.size(); i < size; ++i){
 		if(!connections[i]->getEnabled()) continue; //continue if disabled
-		if (GA::generator() < params.mutateRateWeightPerturbation)
-			connections[i]->weight += GA::generator(-params.mutateMaxPerturbation, params.mutateMaxPerturbation);
+		if (GA::generator() < params->mutateRateWeightPerturbation)
+			connections[i]->weight += GA::generator(-params->mutateMaxPerturbation, params->mutateMaxPerturbation);
 	}
 }
 bool Network::mutateAddConnection(){
-	unsigned to = GA::generator.getI(params.numInputs+1, numNodes-1);
+	unsigned to = GA::generator.getI(params->numInputs+1, numNodes-1);
 
 	//check if there are nodes 'to' is not connected to
 	bool valid = false;
@@ -303,8 +297,8 @@ VecD Network::evaluate(const VecD& input) const{
 }
 
 double Network::getDissimilarity(const Network& n1, const Network& n2){
-	if(&n1.params != &n2.params)
-		throw std::runtime_error("Parent's parameters not equal.");
+	if(n1.params == nullptr || n2.params == nullptr || n1.params != n2.params)
+		throw std::runtime_error("Parent's parameters NULL or not equal.");
 	if(n1.connections.size()==0 || n2.connections.size()==0)
 		throw std::runtime_error("Parents with empty connections.");
 
@@ -316,7 +310,7 @@ double Network::getDissimilarity(const Network& n1, const Network& n2){
 	unsigned iter1 = 0, inno1 = n1.connections[iter1]->innovationNumber, size1 = n1.connections.size();
 	unsigned iter2 = 0, inno2 = n2.connections[iter2]->innovationNumber, size2 = n2.connections.size();
 
-	unsigned last = n1.params.getInnovationNumber(); //this is 'next Innovation number', so doesn't exist in 'n1' or 'n2'
+	unsigned last = n1.params->getInnovationNumber(); //this is 'next Innovation number', so doesn't exist in 'n1' or 'n2'
 
 
 	while(inno1 < last && inno2 < last){
@@ -345,7 +339,54 @@ double Network::getDissimilarity(const Network& n1, const Network& n2){
 	//subtract numNodes from numConnections so that bias is not taken into account to factor 1/N
 	double normalization = 1. / std::max(n1.getNumConnections()-n1.getNumNodes(), n2.getNumConnections()-n2.getNumNodes());
 
-	return 	n1.params.excessFactor 		* numExcessConnections 		* normalization +
-		 	n1.params.disjointFactor 	* numDisjointConnections 	* normalization +
-		 	(numMatching == 0 ? 0 : n1.params.averageWeightDifferenceFactor * totalWeightDifference / numMatching);
+	return 	n1.params->excessFactor 		* numExcessConnections 		* normalization +
+	n1.params->disjointFactor 	* numDisjointConnections 	* normalization +
+	(numMatching == 0 ? 0 : n1.params->averageWeightDifferenceFactor * totalWeightDifference / numMatching);
+}
+
+
+void Network::write(const std::string& path){
+	std::string name = checkFileName(path,".txt");
+
+	std::ofstream file;
+	file.open(name, std::ios::trunc);
+
+	for(unsigned i=0, size=connections.size(); i<size; ++i)
+		file << connections[i]->toString(true,10) << std::endl;
+
+	file.close();
+}
+void Network::read(const std::string& path){
+	clear();
+
+	std::ifstream file; 
+	file.open(path, std::ios::in);
+
+	unsigned firstOutput = 1;
+	unsigned lastOutput  = 1;
+	bool stopChecking = false;
+
+	numNodes = 0;
+
+	std::string line;
+	while (std::getline(file, line)){
+		auto new_connection = new Connection(line);
+		connections.push_back(new_connection);
+		if(!stopChecking){
+			if(new_connection->pre == 0){
+				if(firstOutput == 1) firstOutput = new_connection->pos; //only done once
+				lastOutput = std::max(lastOutput, new_connection->pos); //done until all bias are seen
+			}
+			else
+				stopChecking = true;
+		}
+		unsigned max_node_id = std::max(new_connection->pre, new_connection->pos);
+		if(max_node_id >= numNodes)
+			numNodes  = max_node_id + 1;
+	}
+
+	numInputs = firstOutput - 1;
+	numOutputs = lastOutput - numInputs;
+	numNonHidden = numInputs + numOutputs + 1;
+	numHidden = numNodes - numNonHidden;
 }

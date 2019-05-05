@@ -1,6 +1,7 @@
 
 #include "Image.hpp"
 #include "Node.hpp"
+#include "Tools.hpp"
 
 using namespace NEAT;
 
@@ -140,7 +141,7 @@ double Image::nodeDistance(const MatrixD& mat, unsigned n1, unsigned n2, double 
 	return pow(norm2,power/2.);
 }
 
-void Image::print(){ std::cout << toString(getBest()) << std::endl; }
+void Image::print(){ ::print(toString(getBest())); }
 void Image::draw(float screenWidth, float screenHeight){
 	window.create(sf::VideoMode(screenWidth, screenHeight), "Visualizer");
 	window.clear(sf::Color::White);
@@ -200,30 +201,12 @@ void Image::close(){
 }
 
 void Image::save(const std::string& name){
-	std::ostringstream str;
-	if(name!=""){
-		str << name;
-		if(name.substr( name.size()-4, 4 ) != ".jpg" && name.substr( name.size()-4, 4 ) != ".png")
-			str << ".png";
-	}
-	else{
-		time_t date_t = time(NULL);
-		struct tm * date = gmtime(&date_t);
-		str << "NEAT_Image_";
-		str << std::setw(2) << std::setfill('0') << date->tm_mday;
-		str << std::setw(2) << std::setfill('0') << date->tm_mon+1;
-		str << std::setw(2) << std::setfill('0') << date->tm_year-100;
-		str << "_" << std::setw(2) << std::setfill('0') << date->tm_hour;
-		str << std::setw(2) << std::setfill('0') << date->tm_min;
-		str << std::setw(2) << std::setfill('0') << date->tm_sec;
-		str << "_" << (int)clock()%1000; 
-		str << ".png"; 
-	}
-
+	std::string path = checkFileName(name,".png");
+	
 	sf::Texture texture;
 	texture.create(window.getSize().x, window.getSize().y);
 	texture.update(window);
-	texture.copyToImage().saveToFile(str.str());
+	texture.copyToImage().saveToFile(path);
 }
 
 

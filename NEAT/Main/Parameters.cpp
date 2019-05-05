@@ -2,6 +2,8 @@
 
 #include "Parameters.hpp"
 
+#include <iostream> //runtime_error
+
 using namespace NEAT;
 
 Parameters::Parameters():

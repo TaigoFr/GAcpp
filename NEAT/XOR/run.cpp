@@ -1,5 +1,6 @@
 
 #include "NEAT_GA.hpp"
+#include "Tools.hpp"
 
 double XOR(const NEAT::Network& net, const GA::Evolver<NEAT::Network>*){
 	static float inputs[][2] = {{ 0.0f, 0.0f },
@@ -29,7 +30,7 @@ void showOutput(const NEAT::Network& net) {
 
 	for(unsigned i=0; i<4; ++i){
 		double output = net.evaluate(VecD(2,inputs[i][0],inputs[i][1]))[0];
-		std::cout << "Output @ (" << inputs[i][0] << ", " << inputs[i][1] << "): " << output << std::endl;
+		print("Output @ (",inputs[i][0],", ",inputs[i][1],"): ",output);
 	}
 }
 
@@ -43,10 +44,14 @@ int main(){
 	ga.evolve(10,0.9,1);
 
 	NEAT::Network *best = &ga.getBest();
-	std::cout << NEAT::Network::toString(*best) << std::endl;
-	std::cout << "Best Fitness = " << (4.-ga.getBestFitness())*25. << std::endl;
+	print(NEAT::Network::toString(*best));
+	print("Best Fitness = ",(4.-ga.getBestFitness())*25.);
 
 	showOutput(*best);
+	best->write("XOR_best.txt");
+
+	NEAT::Network net("XOR_best.txt");
+	net.print();
 
 	return 0;
 }

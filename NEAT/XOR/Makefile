@@ -9,7 +9,8 @@
 
 LIB_DIRS 	:= 	../../GA/v2/Tools \
 				../../GA/v2/GA \
-				../Main
+				../Main \
+				../Tools
 USER_FLAGS  := -Wall -Wextra -std=c++11 -fopenmp
 
 # ROOT_LD 	:= $(shell root-config --libs)
