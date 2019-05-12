@@ -2,8 +2,6 @@
 #include "Clock.hpp"
 
 #include <cstdio>
-// #include <unistd.h> //usleep - being used before 'std::this_thread::sleep_for'
-#include <thread> //std::this_thread::sleep_for
 
 Clock::Clock(const std::string pstr,const state ps):init(chrono_clock()),T(0.),t(0.),str(pstr),s(ps), verbose(true){
 	if(ps==start) Start();
@@ -52,34 +50,10 @@ double Clock::Restart(const std::string str2, const std::string str3){
 	return temp;
 }
 
-//assumes Start if s=pause
-double Clock::S(const std::string str2, const std::string str3){
-	if(s==stop) 	return Start();
-	else 			return Stop(str2,str3);
-}
-double Clock::L(const std::string str2)							{return Lap	   (str2);	   }
-double Clock::P(const std::string str2, const std::string str3)	{return Pause  (str2,str3);}
-double Clock::R(const std::string str2, const std::string str3)	{return Restart(str2,str3);}
-double Clock::operator()(const std::string str2, const std::string str3){return S(str2,str3);}
-
-double Clock::GetT(){return T;}
-double Clock::Gett(){return t;}
-Clock::state  Clock::GetState(){return s;}
-
-void Clock::setVerbose(bool v) { verbose = v; }
-
-chrono_time Clock::chrono_clock(){
-	return std::chrono::high_resolution_clock::now();
-}
 
 double Clock::count(){
 	//chrono_clock returns a very ugly time and using the line below is how to decode it. That's all that matters. Practicality :P 
 	auto temp = chrono_clock();
 	std::chrono::duration<double> elapsed = temp - init;
 	return elapsed.count();
-}
-
-void Clock::sleep(double secs){
-    std::this_thread::sleep_for(std::chrono::microseconds((int)(secs*1.e6)));
-	// usleep(secs*1.e6);
 }

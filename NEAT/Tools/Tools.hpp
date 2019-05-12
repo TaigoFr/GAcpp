@@ -16,16 +16,6 @@
 #include <string>
 #include <ostream>
 
-#define FOR0(N) FOR1(i,N)
-#define FOR1(IDX, DIM) FOR1_I(IDX, 0, DIM)
-#define FOR1_I(IDX, INIT, DIM) for(unsigned IDX = INIT; IDX < DIM; ++IDX)
-#define FOR2(IDX1, IDX2, DIM1, DIM2) FOR2(IDX1, IDX2, 0, 0, DIM1, DIM2)
-#define FOR2_2(IDX1, IDX2, DIM1, DIM2, AUX) XXXXXX //not defined
-#define FOR2_I(IDX1, IDX2, INIT1, INIT2, DIM1, DIM2) FOR1_I(IDX1, INIT1, DIM1) FOR1_I(IDX2, INIT2, DIM2)
-
-#define GET_MACRO(_1,_2,_3,_4,_5,_6, NAME,...) NAME
-#define FOR(...) GET_MACRO(__VA_ARGS__, FOR2_I, FOR2_2, FOR2, FOR1_I, FOR1, FOR0)(__VA_ARGS__)
-
 template < typename ... ARGS >
 std::ostream& printOS(std::ostream& os, ARGS && ... args){
     (void)std::initializer_list< int >{ ( os << args, 0 ) ... };

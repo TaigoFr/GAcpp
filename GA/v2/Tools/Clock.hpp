@@ -23,6 +23,8 @@ Other useful functions:
 #include <chrono>
 #include <string>
 #include <cmath> //sqrt
+// #include <unistd.h> //usleep - being used before 'std::this_thread::sleep_for'
+#include <thread> //std::this_thread::sleep_for
 
 //high_resolution_clock
 typedef std::chrono::time_point<std::chrono::high_resolution_clock> chrono_time;
@@ -39,18 +41,22 @@ public:
 	double Restart(const std::string str2="", const std::string str3="");	//start clock is paused or stopped, reset if on start
 
 	//Redefine Start/Stop, Lap, Pause, Restart for ease of use
-	double S(const std::string str2="", const std::string str3=""); //Does Start/Stop if on Stop/Start
-	double L(const std::string str2="");
-	double P(const std::string str2="", const std::string str3="");
-	double R(const std::string str2="", const std::string str3="");
+	//assumes Start if s=pause
+	inline double S(const std::string str2="", const std::string str3=""){//Does Start/Stop if on Stop/Start
+		if(s==stop) 	return Start();
+		else 			return Stop(str2,str3);
+	};
+	inline double L(const std::string str2="")								{return Lap	   (str2);	   }
+	inline double P(const std::string str2="", const std::string str3="")	{return Pause  (str2,str3);}
+	inline double R(const std::string str2="", const std::string str3="")	{return Restart(str2,str3);}
 
-	double operator()(const std::string str2="", const std::string str3=""); //Same as S(...)
+	inline double operator()(const std::string str2="", const std::string str3=""){return S(str2,str3);}
 
-	double GetT();
-	double Gett();
-	state GetState();
+	inline double GetT(){return T;}
+	inline double Gett(){return t;}
+	inline state  GetState(){return s;}
 
-	void setVerbose(bool);
+	inline void setVerbose(bool v) { verbose = v; }
 
 	//Output time since start of clock
 	double count();
@@ -63,9 +69,9 @@ public:
 	static void stats(unsigned N, T_out (*func)(ARGS1 ...), ARGS2 && ... args);
 
 	//sleep for a given number of seconds (only for current thread if multiple threads are used)
-	static void sleep(double secs);
+	static inline void sleep(double secs) { std::this_thread::sleep_for(std::chrono::microseconds((int)(secs*1.e6))); /*usleep(secs*1.e6);*/ }
 private:
-	chrono_time chrono_clock();
+	inline chrono_time chrono_clock() { return std::chrono::high_resolution_clock::now(); }
 	chrono_time init;
 
 	double T,t; 		//T - time since last Start, t - time since last Lap/Pause (or Start if no Lap/Pause was made)

@@ -48,10 +48,11 @@ int main(){
 	print("Best Fitness = ",(4.-ga.getBestFitness())*25.);
 
 	showOutput(*best);
-	best->write("XOR_best.txt");
+	best->print();
+	// best->write("XOR_best.txt");
 
-	NEAT::Network net("XOR_best.txt");
-	net.print();
+	// NEAT::Network net("XOR_best.txt");
+	// net.print();
 
 	return 0;
 }

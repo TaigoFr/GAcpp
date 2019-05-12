@@ -8,12 +8,6 @@ Random::Random(){
 	generator.seed(seed);
 }
 
-double Random::operator()(double min, double max){ return getD(min,max); }
-
-double Random::getD(double min, double max){
-	return ( (max-min) * generator() )/generator.max() + min;
-}
-
 int Random::getI(int min, int max){
 	if(max==min)
 		return min;

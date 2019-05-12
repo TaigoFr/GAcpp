@@ -29,13 +29,15 @@ int main(){
 	//testing write and read
 	NEAT::Network *best = &ga.getBest();
 	print(NEAT::Network::toString(*best));
-	best->write("NEAT_Image_best.txt");
+	best->print();
+	// best->write("NEAT_Image_best.txt");
 
-	NEAT::Network net("NEAT_Image_best.txt");
-	net.print();
+	// NEAT::Network net("NEAT_Image_best.txt");
+	// net.print();
 	//////////////////////////
 
-	NEAT::Image image(net,100);
+	NEAT::Image image(*best,100);
+	// NEAT::Image image(net,100);
 	image.evolve(2000,5,0.2,0.5);
 
 	image.print();
