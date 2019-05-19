@@ -185,9 +185,10 @@ void Evolver<Ind>::generation(unsigned eliteCount, double crossoverProb, double 
 
 	unsigned crossoverLast = eliteCount + (unsigned)((populationSize - eliteCount)*crossoverProb);
 
+	//populationSize shared by default, for being 'const'
 	#pragma omp parallel for \
 	default(none) \
-	shared(eliteCount, populationSize, crossoverLast, population, mutateProb, offspring, generator)
+	shared(eliteCount, crossoverLast, population, mutateProb, offspring, generator)
 	for(unsigned ind = eliteCount; ind<populationSize; ++ind){
 
 		unsigned parent1 = selectParent(population->fitness_cumulative);
@@ -225,7 +226,8 @@ void Evolver<Ind>::generation(unsigned eliteCount, double crossoverProb, double 
 
 template <typename Ind>
 inline void Evolver<Ind>::initiatePopulation(){
-	#pragma omp parallel for default(none) shared(population, populationSize)
+	//populationSize shared by default, for being 'const'
+	#pragma omp parallel for default(none) shared(population)
 	for(unsigned i=0; i<populationSize; ++i) population->pop[i] = new Individual<Ind>(create(this));
 }
 
@@ -244,9 +246,10 @@ StopReason Evolver<Ind>::updateFitness(){
 	double fitnessSum_orig = 0.;
 	unsigned bestRank = 0;
 
+	//populationSize shared by default, for being 'const'
 	#pragma omp parallel for \
 	default(none) \
-	shared(populationSize, bestRank) \
+	shared(bestRank) \
 	reduction(+:fitnessSum_orig) \
 	reduction(max:maxfitness_orig) \
 	reduction(min:minfitness_orig)
@@ -280,9 +283,9 @@ StopReason Evolver<Ind>::updateFitness(){
 		Individual<Ind>* ind = population->pop[i];
 		if(ind!=nullptr){
 			//invert fitness_origes for minimize
-			ind->fitness 			 	  = (obj==MAXIMIZE ? ind->fitness_orig - minfitness_orig : maxfitness_orig - ind->fitness_orig);
+			ind->fitness 			 	  	  = (obj==MAXIMIZE ? ind->fitness_orig - minfitness_orig : maxfitness_orig - ind->fitness_orig);
 			ind->evaluated 					  = true;
-			population->fitnessSum 	 += ind->fitness;
+			population->fitnessSum 	 		 += ind->fitness;
 			population->fitness_cumulative[i] = population->fitnessSum;
 		}
 	}

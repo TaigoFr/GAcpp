@@ -30,7 +30,7 @@ namespace GA{
 	template <typename Ind>
 	class Evolver{
 	public:
-		Evolver(unsigned _populationSize, bool _verbose = true);
+		Evolver(unsigned _populationSize, double _speciation_threshold = -1., bool _verbose = true); //negative threshold means no speciation
 		~Evolver();
 
 		StopReason start(unsigned eliteCount, double crossoverProb, double mutateProb);
@@ -39,14 +39,15 @@ namespace GA{
 
 		void evolve(unsigned eliteCount, double crossoverProb, double mutateProb);
 
-		inline void setCreate 	(Ind 		(*func)	(const Evolver<Ind>*));
-		inline void setCrossover(Ind 		(*func)	(const Ind&,const Ind&, double fit1, double fit2));
-		inline void setMutate	(void 		(*func)	(Ind&, const Evolver<Ind>*));
-		inline void setEvaluate	(double		(*func)	(const Ind&, const Evolver<Ind>*), Objective);
-		inline void setToString	(std::string(*func)	(const Ind&));
+		inline void setCreate 		(Ind 		(*func)	(const Evolver<Ind>*));
+		inline void setCrossover	(Ind 		(*func)	(const Ind&,const Ind&, double fit1, double fit2));
+		inline void setMutate		(void 		(*func)	(Ind&, const Evolver<Ind>*));
+		inline void setEvaluate		(double		(*func)	(const Ind&, const Evolver<Ind>*), Objective);
+		inline void setToString		(std::string(*func)	(const Ind&));
+		inline void setDissimilarity(double		(*func)	(const Ind&, const Ind&));
 
 		inline const Ind& 	getBest() const;
-		inline double 	getBestFitness() const;
+		inline double 		getBestFitness() const;
 		void printPopulation() const;
 
 		unsigned	maxGenerations;
@@ -59,28 +60,30 @@ namespace GA{
 	protected:
 		virtual unsigned selectParent(const VecD& fitness_cumulative, int other = -1) const; //to be replaced by similarity selection in NEAT
 		
-		unsigned populationSize;
+		const unsigned populationSize;
 		Population<Ind>* population;
 
-		Ind 		(*create) 	(const Evolver<Ind>*);
-		Ind 		(*crossover)(const Ind&,const Ind&, double fit1, double fit2);
-		void 		(*mutate)	(Ind&, const Evolver<Ind>*);
-		double		(*evaluate)	(const Ind&, const Evolver<Ind>*);
-		std::string	(*toString)	(const Ind&);
+		Ind 		(*create) 		(const Evolver<Ind>*);
+		Ind 		(*crossover)	(const Ind&,const Ind&, double fit1, double fit2);
+		void 		(*mutate)		(Ind&, const Evolver<Ind>*);
+		double		(*evaluate)		(const Ind&, const Evolver<Ind>*);
+		std::string	(*toString)		(const Ind&);
+		double		(*dissimilarity)(const Ind&, const Ind&);
 		
 	private:
 		mutable Clock C;
 
 		Objective obj;
 		unsigned generationStep;
-		bool verbose;
+		const bool verbose;
 
 		void clear();
 
 		inline void initiatePopulation();
 		StopReason updateFitness();
 
-		inline void findElite(unsigned elite_count);
+		void findElite(unsigned elite_count, Population<Ind> *offspring);
+		void nullifyElite(unsigned elite_count);
 		StopReason stopCriteria(double oldBest, double newBest, double oldAverage, double newAverage) const;
 
 		void generation(unsigned eliteCount, double crossoverProb, double mutateProb);
@@ -88,10 +91,13 @@ namespace GA{
 		// void preSelection(unsigned elite_count);
 		void crossoverAndMutate(double crossoverProb, double mutateProb);
 		inline void printGen() const;
+
+		void addIndividual(Population<Ind> *pop, Individual<Ind> *I, int species = -1);
 	};
 
-	template <typename Ind> inline void 		mutate_default	(Ind&, const Evolver<Ind>*)	{ return; }
-	template <typename Ind> inline std::string 	toString_default(const Ind&)				{ return ""; }
+	template <typename Ind> inline void 		mutate_default	(Ind&, const Evolver<Ind>*)		{ return; }
+	template <typename Ind> inline std::string 	toString_default(const Ind&)					{ return ""; }
+	template <typename Ind> inline double 		dissimilarity_default(const Ind&, const Ind&) 	{ return generator(); }
 
 	#include "Evolver.impl.hpp"
 

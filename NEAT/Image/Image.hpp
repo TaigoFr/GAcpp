@@ -29,11 +29,11 @@ namespace NEAT{
 	private:
 		// const unsigned numInputs, numOutputs, numNodes;
 		const Network* net;
-		double margin;
-		double maxMutation;
-		double connectionAttractionPower;
-		double nodeRepulsionPower;
-		double nodeRepulsionCoeff;
+		const double margin;
+		const double maxMutation;
+		const double connectionAttractionPower;
+		const double nodeRepulsionPower;
+		const double nodeRepulsionCoeff;
 
 		sf::RenderWindow window;
 

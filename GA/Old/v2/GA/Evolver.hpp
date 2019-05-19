@@ -59,7 +59,7 @@ namespace GA{
 	protected:
 		virtual unsigned selectParent(const VecD& fitness_cumulative, int other = -1) const; //to be replaced by similarity selection in NEAT
 		
-		unsigned populationSize;
+		const unsigned populationSize;
 		Population<Ind>* population;
 
 		Ind 		(*create) 	(const Evolver<Ind>*);
@@ -73,7 +73,7 @@ namespace GA{
 
 		Objective obj;
 		unsigned generationStep;
-		bool verbose;
+		const bool verbose;
 
 		void clear();
 

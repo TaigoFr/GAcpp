@@ -10,7 +10,7 @@ public:
 	inline Individual(Individual<Ind>&& i): I((Ind&&)(i.I)), evaluated(i.evaluated), fitness_orig(i.fitness_orig), fitness(i.fitness){}
 	
 	Ind I;
-	bool evaluated;
+	bool evaluated; //whether or not fitness has been set already
 	double fitness_orig;
 	double fitness;
 };

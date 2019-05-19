@@ -1,8 +1,6 @@
 #pragma once
 
-#include "Vec.hpp"
-#include "Individual.hpp"
-
+#include "Species.hpp"
 
 ////TEMPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 #include <cstdio>
@@ -10,33 +8,37 @@
 template <typename Ind>
 class Population{
 public:
-	inline Population(unsigned populationSize): pop(populationSize,(Individual<Ind>*)nullptr), fitness_cumulative(populationSize,0.), fitnessSum_orig(0.), fitnessSum(0.), bestRank(0){}
+	inline Population(double _speciation_threshold = -1.): //negative means no speciation
+	species(1)
+	, speciation_threshold(_speciation_threshold)
+	, bestSpecies(0)
+	, totalFitnessSum(0.)
+	{ species[0] = new Species<Ind>(); }
 
 	~Population(){ clear(); }
 
 	void clear(){
 		// printf("In Population::clear()\n");
-		for(unsigned i=0; i<pop.size(); ++i){
-			if(pop[i]!=nullptr){
+		for(unsigned i=0; i<species.size(); ++i){
+			if(species[i]!=nullptr){
 				// printf("Deleting Individual %d\n",i);
-				delete pop[i];
-				pop[i] = nullptr;
+				delete species[i];
+				species[i] = nullptr;
 			}
 		}
 	}
 
-	VecD printFitness() const{
-		VecD fitness_orig(pop.size());
-		for(unsigned i=0; i<pop.size(); ++i)
-			fitness_orig[i] = (pop[i]==nullptr ? 0 : pop[i]->fitness_orig);
-		fitness_orig.print();
-		printf("Average = %lf\nBest = %lf\n",fitness_orig.sum()/pop.size(),fitness_orig.min());
-		return fitness_orig;
-	}
+	inline const Ind&  	getBest() 		 	 	const{ return species[bestSpecies]->getBest(); }
+	inline double 		getBestFitness() 		const{ return species[bestSpecies]->getBestFitness(); }
+	inline double 		getBestFitnessEvolver() const{ return species[bestSpecies]->getBestFitnessEvolver(); }
 
-	Vec<Individual<Ind>*> pop;
-	VecD fitness_cumulative;
-	double fitnessSum_orig;
-	double fitnessSum;
-	unsigned bestRank;
+	inline unsigned numSpecies(){ return species.size(); }
+
+	static bool compareSpecies(Species<Ind>* left, Species<Ind>* right)
+	{ return (left==nullptr || right==nullptr) ? false : ((left->getBestFitness()) > (right->getBestFitness())); }
+
+	Vec<Species<Ind>*> species;
+	const double speciation_threshold;
+	unsigned bestSpecies;
+	double totalFitnessSum; //used just for stopping criteria
 };

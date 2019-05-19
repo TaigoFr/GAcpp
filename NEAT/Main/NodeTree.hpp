@@ -20,7 +20,7 @@ namespace NEAT{
 		VecD   evaluate(const VecD& input) const; //returns output
 
 	private:
-		unsigned numInputs, numOutputs;
+		const unsigned numInputs, numOutputs;
 		std::vector<Node*> nodes;
 	};
 

@@ -1,1 +1,5 @@
 Toggle on and off genes in mutation (&& see all mutations of NEAT)
+All GA and NEAT for's by FOR
+
+updateFitness
+change bestRank pragma to 2nd for with no pragma comparing fitnesses alone
