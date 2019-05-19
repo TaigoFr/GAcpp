@@ -24,7 +24,7 @@ unsigned Evolver::selectParent(const VecD& fitness_cumulative, int other) const{
 	VecD compatible_fitness_comulative;
 	Vec<unsigned>   compatible_indices;
 
-	double compatible_fitnessSum_norm = 0.;
+	double compatible_fitnessSum = 0.;
 
 	unsigned minDissimilarityIndex = 0;
 	double   minDissimilarity = Network::getDissimilarity(population->pop[other]->I, population->pop[minDissimilarityIndex]->I);
@@ -40,10 +40,10 @@ unsigned Evolver::selectParent(const VecD& fitness_cumulative, int other) const{
 		}
 
 		if (dissimilarity < params.speciationTolerance) {
-			double fitness_norm = std::max(0., population->pop[i]->fitness_norm - dissimilarity * params.preferSimilarFactor);
+			double fitness = std::max(0., population->pop[i]->fitness - dissimilarity * params.preferSimilarFactor);
 
-			compatible_fitnessSum_norm += fitness_norm;
-			compatible_fitness_comulative.push_back(compatible_fitnessSum_norm);
+			compatible_fitnessSum += fitness;
+			compatible_fitness_comulative.push_back(compatible_fitnessSum);
 			compatible_indices.push_back(i);
 		}
 	}

@@ -49,7 +49,7 @@ void Evolver<Ind>::clear(){
 template <typename Ind>
 inline const Ind&  	Evolver<Ind>::getBest() const	{ return population->pop[population->bestRank]->I; }
 template <typename Ind>
-inline double 	Evolver<Ind>::getBestFitness() const{ return population->pop[population->bestRank]->fitness; }
+inline double 	Evolver<Ind>::getBestFitness() const{ return population->pop[population->bestRank]->fitness_orig; }
 
 
 template <typename Ind>
@@ -128,15 +128,15 @@ template <typename Ind>
 inline void Evolver<Ind>::printGen() const{
 	if(verbose)
 		printf("Generation [%3d]; Best=%.3e; Average=%.3e; Best genes=%s; Time=%lfs\n",
-			generationStep,population->pop[population->bestRank]->fitness,population->fitnessSum/populationSize,toString(population->pop[population->bestRank]->I).c_str(),C.L());
+			generationStep,population->pop[population->bestRank]->fitness_orig,population->fitnessSum_orig/populationSize,toString(population->pop[population->bestRank]->I).c_str(),C.L());
 }
 
 
 template <typename Ind>
 unsigned Evolver<Ind>::selectParent(const VecD& fitness_cumulative, int other) const
 {
-	double fitnessSum_norm = fitness_cumulative.back();
-	double target = generator.getD(0.,fitnessSum_norm);
+	double fitnessSum = fitness_cumulative.back();
+	double target = generator.getD(0.,fitnessSum);
 
 	//original: https://stackoverflow.com/questions/39416560/how-can-i-simplify-this-working-binary-search-code-in-c/39417165#39417165
 	unsigned pos = (other == 0 ? 1 : 0);
@@ -153,8 +153,8 @@ unsigned Evolver<Ind>::selectParent(const VecD& fitness_cumulative, int other) c
 	if((int)pos==other)
 		pos = (other==(int)fitness_cumulative.size()-1 ? 0 : pos+1);
 
-	// population->fitness_cumulative.print("Fitness_cumulative: ",9);
-	// printf("fitnessSum_norm = %lf\ntarget = %lf\nFinal = %u\n",population->fitnessSum_norm,target,pos);
+	// population->fitness_cumulative.print("fitness_cumulative: ",9);
+	// printf("fitnessSum = %lf\ntarget = %lf\nFinal = %u\n",population->fitnessSum,target,pos);
 
 	return pos;
 }
@@ -162,7 +162,7 @@ unsigned Evolver<Ind>::selectParent(const VecD& fitness_cumulative, int other) c
 template <typename Ind>
 inline void Evolver<Ind>::findElite(unsigned eliteCount){
 	std::partial_sort(population->pop.begin(), population->pop.begin()+eliteCount, population->pop.end(), 
-		[this](Individual<Ind>* left, Individual<Ind>* right) {return (left==nullptr || right==nullptr) ? false : ((left->fitness_norm) > (right->fitness_norm)); });
+		[this](Individual<Ind>* left, Individual<Ind>* right) {return (left==nullptr || right==nullptr) ? false : ((left->fitness) > (right->fitness)); });
 }
 
 
@@ -197,7 +197,7 @@ void Evolver<Ind>::generation(unsigned eliteCount, double crossoverProb, double 
 		if(ind < crossoverLast){
 			unsigned parent2 = selectParent(population->fitness_cumulative, parent1);
 			child = new Individual<Ind>(crossover(population->pop[parent1]->I,population->pop[parent2]->I,
-				population->pop[parent1]->fitness,population->pop[parent2]->fitness));
+				population->pop[parent1]->fitness_orig,population->pop[parent2]->fitness_orig));
 		}
 		else
 			child = new Individual<Ind>(*population->pop[parent1]);
@@ -231,64 +231,64 @@ inline void Evolver<Ind>::initiatePopulation(){
 
 template <typename Ind>
 StopReason Evolver<Ind>::updateFitness(){
-	double oldBest = population->pop[population->bestRank]->fitness_norm;
-	double oldAverage = population->fitnessSum_norm / populationSize;
+	double oldBest = population->pop[population->bestRank]->fitness;
+	double oldAverage = population->fitnessSum / populationSize;
 
 	population->bestRank = 0;
-	population->fitnessSum 		= 0.;
-	population->fitnessSum_norm = 0.;
+	population->fitnessSum_orig 		= 0.;
+	population->fitnessSum = 0.;
 
-	double maxfitness = -std::numeric_limits<double>::infinity();
-	double minfitness = -maxfitness;
+	double maxfitness_orig = -std::numeric_limits<double>::infinity();
+	double minfitness_orig = -maxfitness_orig;
 
-	double fitnessSum = 0.;
+	double fitnessSum_orig = 0.;
 	unsigned bestRank = 0;
 
 	#pragma omp parallel for \
 	default(none) \
 	shared(populationSize, bestRank) \
-	reduction(+:fitnessSum) \
-	reduction(max:maxfitness) \
-	reduction(min:minfitness)
+	reduction(+:fitnessSum_orig) \
+	reduction(max:maxfitness_orig) \
+	reduction(min:minfitness_orig)
 	for(unsigned i=0; i<populationSize; ++i){
 		Individual<Ind>* ind = population->pop[i];
 		if(ind!=nullptr){
 			if(!ind->evaluated)
-				ind->fitness = evaluate(ind->I,this);
+				ind->fitness_orig = evaluate(ind->I,this);
 
-			fitnessSum += ind->fitness;
+			fitnessSum_orig += ind->fitness_orig;
 
-			if(ind->fitness > maxfitness){
+			if(ind->fitness_orig > maxfitness_orig){
 				if(obj==MAXIMIZE)
 					#pragma omp critical
 					bestRank = i;
-				maxfitness = ind->fitness;
+				maxfitness_orig = ind->fitness_orig;
 			}
-			if(ind->fitness < minfitness){
+			if(ind->fitness_orig < minfitness_orig){
 				if(obj==MINIMIZE)
 					#pragma omp critical
 					bestRank = i;
-				minfitness = ind->fitness;
+				minfitness_orig = ind->fitness_orig;
 			}
 		}
 	}
 
-	population->fitnessSum = fitnessSum;
+	population->fitnessSum_orig = fitnessSum_orig;
 	population->bestRank   = bestRank;
 
 	for(unsigned i=0; i<populationSize; ++i){
 		Individual<Ind>* ind = population->pop[i];
 		if(ind!=nullptr){
-			//invert fitnesses for minimize
-			ind->fitness_norm 			 	  = (obj==MAXIMIZE ? ind->fitness - minfitness : maxfitness - ind->fitness);
+			//invert fitness_origes for minimize
+			ind->fitness 			 	  = (obj==MAXIMIZE ? ind->fitness_orig - minfitness_orig : maxfitness_orig - ind->fitness_orig);
 			ind->evaluated 					  = true;
-			population->fitnessSum_norm 	 += ind->fitness_norm;
-			population->fitness_cumulative[i] = population->fitnessSum_norm;
+			population->fitnessSum 	 += ind->fitness;
+			population->fitness_cumulative[i] = population->fitnessSum;
 		}
 	}
 
-	double newBest = population->pop[population->bestRank]->fitness_norm;
-	double newAverage = population->fitnessSum_norm / populationSize;
+	double newBest = population->pop[population->bestRank]->fitness;
+	double newAverage = population->fitnessSum / populationSize;
 	return stopCriteria(oldBest, newBest, oldAverage, newAverage);
 }
 
@@ -355,7 +355,7 @@ template <typename Ind>
 void Evolver<Ind>::printPopulation() const{
 	for(unsigned i=0; i<populationSize; ++i){
 		Individual<Ind>* ind = population->pop[i];
-		if(ind!=nullptr) std::cout << toString(ind->I) << " (F=" << ind->fitness << ")" << std::endl;	
+		if(ind!=nullptr) std::cout << toString(ind->I) << " (F=" << ind->fitness_orig << ")" << std::endl;	
 	}
 }
 

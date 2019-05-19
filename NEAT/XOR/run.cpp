@@ -40,7 +40,7 @@ int main(){
 	ga.params.numInputs  = 2;
 	ga.params.numOutputs = 1;
 	ga.setEvaluate(XOR, GA::MINIMIZE);
-	ga.maxGenerations = 100;
+	ga.maxGenerations = 150;
 	ga.evolve(10,0.9,1);
 
 	const NEAT::Network *best = &ga.getBest();
