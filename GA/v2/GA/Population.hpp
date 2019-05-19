@@ -10,7 +10,7 @@
 template <typename Ind>
 class Population{
 public:
-	Population(unsigned populationSize): pop(populationSize,(Individual<Ind>*)nullptr), fitness_cumulative(populationSize,0.), fitnessSum(0.), fitnessSum_norm(0.), bestRank(0){}
+	inline Population(unsigned populationSize): pop(populationSize,(Individual<Ind>*)nullptr), fitness_cumulative(populationSize,0.), fitnessSum(0.), fitnessSum_norm(0.), bestRank(0){}
 
 	~Population(){ clear(); }
 

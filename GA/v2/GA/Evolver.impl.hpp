@@ -47,13 +47,13 @@ void Evolver<Ind>::clear(){
 }
 
 template <typename Ind>
-Ind&  	Evolver<Ind>::getBest()				{ return population->pop[population->bestRank]->I; }
+inline Ind&  	Evolver<Ind>::getBest()				{ return population->pop[population->bestRank]->I; }
 template <typename Ind>
-double 	Evolver<Ind>::getBestFitness() const{ return population->pop[population->bestRank]->fitness; }
+inline double 	Evolver<Ind>::getBestFitness() const{ return population->pop[population->bestRank]->fitness; }
 
 
 template <typename Ind>
-void Evolver<Ind>::evolve(unsigned eliteCount, double crossoverProb, double mutateProb){
+StopReason Evolver<Ind>::start(unsigned eliteCount, double crossoverProb, double mutateProb){
 	if(verbose){
 		std::cout << "****************************************"	<< std::endl;
 		std::cout << "*            Evolver started           *" << std::endl;
@@ -80,24 +80,30 @@ void Evolver<Ind>::evolve(unsigned eliteCount, double crossoverProb, double muta
 		std::cout << "****************************************" << std::endl;
 	}
 
-	StopReason stop = StopReason::Undefined;
-	
 	C.R();
 	initiatePopulation();
 	generationStep = 0;
 	
-	stop = updateFitness();
+	StopReason stop = updateFitness();
 	printGen();
-	while(stop==StopReason::Undefined){
-		// printPopulation();
-		generation(eliteCount, crossoverProb, mutateProb);
-		++generationStep;
 
-		stop = updateFitness();
-		printGen();
-	}
+	return stop;
+}
+
+template <typename Ind>
+StopReason Evolver<Ind>::step(unsigned eliteCount, double crossoverProb, double mutateProb){
+	generation(eliteCount, crossoverProb, mutateProb);
+	++generationStep;
+
+	StopReason stop = updateFitness();
+	printGen();
+
+	return stop;
+}
+
+template <typename Ind>
+void Evolver<Ind>::finish(StopReason stop){
 	if(verbose) printStopReason(stop);
-	// printPopulation();
 
 	if(verbose){
 		C.setVerbose(true);
@@ -109,7 +115,17 @@ void Evolver<Ind>::evolve(unsigned eliteCount, double crossoverProb, double muta
 }
 
 template <typename Ind>
-void Evolver<Ind>::printGen(){
+void Evolver<Ind>::evolve(unsigned eliteCount, double crossoverProb, double mutateProb){
+	StopReason stop = start(eliteCount, crossoverProb, mutateProb);
+
+	while(stop==StopReason::Undefined)
+		stop = step(eliteCount, crossoverProb, mutateProb);
+	
+	finish(stop);
+}
+
+template <typename Ind>
+inline void Evolver<Ind>::printGen(){
 	if(verbose)
 		printf("Generation [%3d]; Best=%.3e; Average=%.3e; Best genes=%s; Time=%lfs\n",
 			generationStep,population->pop[population->bestRank]->fitness,population->fitnessSum/populationSize,toString(population->pop[population->bestRank]->I).c_str(),C.L());
@@ -144,7 +160,7 @@ unsigned Evolver<Ind>::selectParent(const VecD& fitness_cumulative, int other)
 }
 
 template <typename Ind>
-void Evolver<Ind>::findElite(unsigned eliteCount){
+inline void Evolver<Ind>::findElite(unsigned eliteCount){
 	std::partial_sort(population->pop.begin(), population->pop.begin()+eliteCount, population->pop.end(), 
 		[this](Individual<Ind>* left, Individual<Ind>* right) {return (left==nullptr || right==nullptr) ? false : ((left->fitness_norm) > (right->fitness_norm)); });
 }
@@ -208,7 +224,7 @@ void Evolver<Ind>::generation(unsigned eliteCount, double crossoverProb, double 
 
 
 template <typename Ind>
-void Evolver<Ind>::initiatePopulation(){
+inline void Evolver<Ind>::initiatePopulation(){
 	#pragma omp parallel for default(none) shared(population, populationSize)
 	for(unsigned i=0; i<populationSize; ++i) population->pop[i] = new Individual<Ind>(create(this));
 }
@@ -343,10 +359,10 @@ void Evolver<Ind>::printPopulation() const{
 	}
 }
 
-template <typename Ind> void Evolver<Ind>::setCreate 	(Ind 		(*func)	(const Evolver<Ind>*))							{ create 	= func; }
-template <typename Ind> void Evolver<Ind>::setCrossover	(Ind 		(*func)	(const Ind&,const Ind&,
+template <typename Ind> inline void Evolver<Ind>::setCreate 	(Ind 		(*func)	(const Evolver<Ind>*))							{ create 	= func; }
+template <typename Ind> inline void Evolver<Ind>::setCrossover	(Ind 		(*func)	(const Ind&,const Ind&,
 double fit1, double fit2))						{ crossover	= func; }
-template <typename Ind> void Evolver<Ind>::setMutate	(void 		(*func)	(Ind&, const Evolver<Ind>*))					{ mutate 	= func; }
-template <typename Ind> void Evolver<Ind>::setEvaluate	(double		(*func)	(const Ind&, const Evolver<Ind>*), Objective o)	{ evaluate 	= func; obj = o; }
-template <typename Ind> void Evolver<Ind>::setToString	(std::string(*func)	(const Ind&))									{ toString	= func; }
+template <typename Ind> inline void Evolver<Ind>::setMutate		(void 		(*func)	(Ind&, const Evolver<Ind>*))					{ mutate 	= func; }
+template <typename Ind> inline void Evolver<Ind>::setEvaluate	(double		(*func)	(const Ind&, const Evolver<Ind>*), Objective o)	{ evaluate 	= func; obj = o; }
+template <typename Ind> inline void Evolver<Ind>::setToString	(std::string(*func)	(const Ind&))									{ toString	= func; }
 

@@ -1,0 +1,2 @@
+Replace fitness by fitness_orig and fitness_norm by fitness
+Toggle on and off genes in mutation (&& see all mutations of NEAT)
