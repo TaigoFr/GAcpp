@@ -27,7 +27,7 @@ int main(){
 
 	//////////////////////////
 	//testing write and read
-	NEAT::Network *best = &ga.getBest();
+	const NEAT::Network *best = &ga.getBest();
 	print(NEAT::Network::toString(*best));
 	best->print();
 	// best->write("NEAT_Image_best.txt");

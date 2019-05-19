@@ -4,7 +4,7 @@
 
 namespace NEAT{
 
-class Parameters{
+	class Parameters{
 	public:
 		unsigned numInputs; //+1 -> bias
 		unsigned numOutputs;
@@ -33,10 +33,10 @@ class Parameters{
 		Parameters();
 		~Parameters();
 		void clear();
-		void check();
-		unsigned connectionExists(unsigned from, unsigned to);
+		void check() const;
+		unsigned connectionExists(unsigned from, unsigned to) const;
 		unsigned addConnection(unsigned from, unsigned to); //return innovationNumber of that connection
-		unsigned getInnovationNumber();
+		inline unsigned getInnovationNumber(){ return innovationNumber; }
 
 	private:
 		std::vector<BasicConnection*> allConnections;

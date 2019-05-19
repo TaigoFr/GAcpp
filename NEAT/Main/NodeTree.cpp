@@ -26,7 +26,7 @@ void NodeTree::clear(){
 	}
 }
 
-VecD NodeTree::evaluate(const VecD& input){
+VecD NodeTree::evaluate(const VecD& input) const{
 
 	nodes[0]->setValue(1.); //bias
 

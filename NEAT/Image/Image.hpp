@@ -13,18 +13,18 @@ namespace NEAT{
 		Image(const Network&, unsigned _populationSize, double _margin = 0.03);
 
 		void evolve(unsigned _maxGenerations, unsigned eliteCount, double crossoverProb, double mutateProb);
-		void print(); //prints positions to command line
+		void print() const; //prints positions to command line
 		void draw(float screenWidth = 1200.f, float screenHeight = 900.f);  //display SFMl image of network
 		void wait();  //wait until SFML window is closed
-		void close(); //force SFML window to close
-		void save(const std::string& name = ""); //save image to file
+		void save(const std::string& name = "") const; //save image to file
+		inline void close(){ window.close(); } //force SFML window to close
 
 		//functions for GA::Evolver
 		static MatrixD 		create 	 (const GA::Evolver<MatrixD>*);
 		static MatrixD 		crossover(const MatrixD&,const MatrixD&, double fit1, double fit2);
 		static void 		mutate	 (MatrixD&, const GA::Evolver<MatrixD>*);
 		static double		evaluate (const MatrixD&, const GA::Evolver<MatrixD>*);
-		static std::string	toString (const MatrixD&);
+		inline static std::string	toString (const MatrixD& M){ return M.toString("  "); } //" " so that a \n is inserted after title in MatrixD::toString
 
 	private:
 		// const unsigned numInputs, numOutputs, numNodes;

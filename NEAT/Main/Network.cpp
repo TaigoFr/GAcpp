@@ -19,6 +19,7 @@ Network::Network(bool _initialize, Parameters &_params): params(&_params)
 {
 	if(_initialize) initialize();
 }
+//1-line constructors not set to inline not to pollute .hpp
 Network::Network(const std::string& file): params(nullptr){ read(file); }
 Network::Network(Network&& other): params(other.params), numInputs(other.numInputs), numOutputs(other.numOutputs)
 , numNonHidden(other.numNonHidden), numHidden(other.numHidden), numNodes(other.numNodes)
@@ -48,24 +49,25 @@ void Network::clear(){
 
 
 void Network::initialize(){
-	for(unsigned i=0; i<numInputs+1; ++i)
+	for(unsigned i=0; i<numInputs+1; ++i){
 		for(unsigned o=numInputs+1; o<numNonHidden; ++o)
 			addConnection(i, o, true);
 	}
+}
 
-	bool Network::isOutputNode(unsigned n){
-		return (n>=numInputs+1 && n<numNonHidden);
-	}
-	unsigned Network::countNode(unsigned n, bool countPreToo){
-		unsigned count = 0;
-		for(unsigned c=0, size=connections.size(); c<size; ++c){
+bool Network::isOutputNode(unsigned n) const{
+	return (n>=numInputs+1 && n<numNonHidden);
+}
+unsigned Network::countNode(unsigned n, bool countPreToo) const{
+	unsigned count = 0;
+	for(unsigned c=0, size=connections.size(); c<size; ++c){
 		if(!connections[c]->getEnabled()) continue; //continue if disabled
 		if((countPreToo && connections[c]->pre == n) || connections[c]->pos == n)
 			++count;
 	}
 	return count;
 }
-unsigned Network::connectionExists(unsigned from, unsigned to, bool checkDisabled){ //checks both from-to and to-from
+unsigned Network::connectionExists(unsigned from, unsigned to, bool checkDisabled) const{ //checks both from-to and to-from
 	unsigned c=0;
 	for(unsigned size=connections.size(); c<size; ++c){
 		if(!checkDisabled && !connections[c]->getEnabled()) continue; //continue if disabled
@@ -74,7 +76,7 @@ unsigned Network::connectionExists(unsigned from, unsigned to, bool checkDisable
 	}
 	return c;
 }
-bool Network::isInPast(unsigned from, unsigned to){
+bool Network::isInPast(unsigned from, unsigned to) const{
 	for(unsigned c=0, size=connections.size(); c<size; ++c){
 		if(!connections[c]->getEnabled()) continue; //continue if disabled
 		if( connections[c]->pos == to){
@@ -86,13 +88,6 @@ bool Network::isInPast(unsigned from, unsigned to){
 	}
 	return false;
 }
-
-unsigned Network::getNumInputs() 		const { return numInputs;  }
-unsigned Network::getNumHidden() 		const { return numHidden;  }
-unsigned Network::getNumOutputs() 		const { return numOutputs; }
-unsigned Network::getNumNodes() 		const { return numNodes; }
-unsigned Network::getNumConnections() 	const { return connections.size(); }
-const std::vector<Connection*>& Network::getConnections() const{ return connections; }
 
 double Network::getBias(unsigned node) const{
 	for(unsigned c=0, size=connections.size(); c<size; ++c){
@@ -116,20 +111,21 @@ void Network::addNode(unsigned id, bool isInit){
 }
 
 
-void Network::addConnection(unsigned from, unsigned to, bool isInit){ //doesn't check for loops
-if(to < numInputs+1)
-	errorMsg("'to' connection can't be an input connection.\n",toString(*this),"\n","from = ",from,"; to = ",to);
-if(isOutputNode(from))
-	errorMsg("'from' connection can't be an output connection.\n",toString(*this),"\n","from = ",from,"; to = ",to);
-if(from==to)
-	errorMsg("'from' = 'to'\n",toString(*this),"\n","from = ",from,"; to = ",to);
+void Network::addConnection(unsigned from, unsigned to, bool isInit){
+	//doesn't check for loops
+	if(to < numInputs+1)
+		errorMsg("'to' connection can't be an input connection.\n",toString(*this),"\n","from = ",from,"; to = ",to);
+	if(isOutputNode(from))
+		errorMsg("'from' connection can't be an output connection.\n",toString(*this),"\n","from = ",from,"; to = ",to);
+	if(from==to)
+		errorMsg("'from' = 'to'\n",toString(*this),"\n","from = ",from,"; to = ",to);
 
-double weight = (isInit ? GA::generator(-params->maxInitWeight,params->maxInitWeight) : GA::generator(-params->maxWeight,params->maxWeight));
+	double weight = (isInit ? GA::generator(-params->maxInitWeight,params->maxInitWeight) : GA::generator(-params->maxWeight,params->maxWeight));
 
-unsigned where = params->addConnection(from,to);
+	unsigned where = params->addConnection(from,to);
 	//check if connection exists but is disabled
-unsigned ind = connectionExists(from,to,true);
-if(ind<connections.size()){
+	unsigned ind = connectionExists(from,to,true);
+	if(ind<connections.size()){
 		if(connections[ind]->getEnabled()) //bias
 			errorMsg("Trying to add already existing connection.");
 		else
@@ -169,10 +165,8 @@ void Network::addConnection(const Connection* con, bool enableChance){
 }
 
 
-Network Network::create(const GA::Evolver<Network>* ev){
-	Network net(true,((Evolver*)ev)->params);
-	return net;
-}
+Network Network::create(const GA::Evolver<Network>* ev){ return Network(true,((Evolver*)ev)->params); } //not set inline cause it's hard to include NEAT::Evolver in Network
+
 Network Network::crossover(const Network& n1, const Network& n2, double fit1, double fit2){
 	if(n1.params == nullptr || n2.params == nullptr || n1.params != n2.params)
 		throw std::runtime_error("Parent's parameters not equal.");
@@ -233,7 +227,7 @@ std::string	Network::toString(const Network& net){
 	str << "N" << net.getNumNodes() << "H" << net.getNumHidden() << Connection::toString(net.connections);
 	return str.str();
 }
-void Network::print(){ ::print(toString(*this)); }
+void Network::print() const{ ::print(toString(*this)); } //not set as inline not to include "Tools" directly in Network
 
 void Network::mutatePerturbWeight(){
 	for (unsigned i=0, size = connections.size(); i < size; ++i){
@@ -291,10 +285,7 @@ void Network::mutateAddNode(){
 									//what I had before "connections[chosen]" would be a different connection than before
 }
 
-VecD Network::evaluate(const VecD& input) const{ 
-	// return VecD(1,GA::generator(0,4));
-	return NodeTree(*this).evaluate(input);
-}
+VecD Network::evaluate(const VecD& input) const{ return NodeTree(*this).evaluate(input); } //not set inline cause it's hard to include NEAT::NodeTree in Network
 
 double Network::getDissimilarity(const Network& n1, const Network& n2){
 	if(n1.params == nullptr || n2.params == nullptr || n1.params != n2.params)
@@ -345,7 +336,7 @@ double Network::getDissimilarity(const Network& n1, const Network& n2){
 }
 
 
-void Network::write(const std::string& path){
+void Network::write(const std::string& path) const{
 	std::string name = checkFileName(path,".txt");
 
 	std::ofstream file;

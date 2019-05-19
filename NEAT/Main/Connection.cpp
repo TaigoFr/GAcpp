@@ -48,7 +48,7 @@ Connection Connection::read(const std::string& str){
 }
 
 
-std::string Connection::toString(bool weightIfDisabled, unsigned precision){
+std::string Connection::toString(bool weightIfDisabled, unsigned precision) const{
 	std::stringstream str;
 	str << innovationNumber << ":" << pre << "-" << pos << "(" << enabled;
 	if(weightIfDisabled || enabled)
@@ -65,9 +65,4 @@ std::string Connection::toString(const std::vector<Connection*> &net){
 	return out;
 }
 
-bool Connection::compare(const Connection* c1, const Connection* c2){ return c1->innovationNumber < c2->innovationNumber; }
-
-bool Connection::getEnabled(){ return enabled; }
-void Connection::enable() { enabled = true; }
-void Connection::disable(){ enabled = false; }
 

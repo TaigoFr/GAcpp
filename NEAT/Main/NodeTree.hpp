@@ -7,21 +7,21 @@
 
 namespace NEAT{
 
-class NodeTree{
-public:
-	NodeTree(const Network&);
-	NodeTree(NodeTree&&)	  = delete;
-	NodeTree(const NodeTree&) = delete; //just to make sure
-	~NodeTree();
-	void clear();
-	NodeTree& operator=(const NodeTree&) = delete;
-	NodeTree& operator=(NodeTree&&) 	 = delete;
+	class NodeTree{
+	public:
+		NodeTree(const Network&);
+		NodeTree(NodeTree&&)	  = delete;
+		NodeTree(const NodeTree&) = delete; //just to make sure
+		~NodeTree();
+		void clear();
+		NodeTree& operator=(const NodeTree&) = delete;
+		NodeTree& operator=(NodeTree&&) 	 = delete;
 
-	VecD evaluate(const VecD& input); //returns output
+		VecD   evaluate(const VecD& input) const; //returns output
 
-private:
-	unsigned numInputs, numOutputs;
-	std::vector<Node*> nodes;
-};
+	private:
+		unsigned numInputs, numOutputs;
+		std::vector<Node*> nodes;
+	};
 
 };

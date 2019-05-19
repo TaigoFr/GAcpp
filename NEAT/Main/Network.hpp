@@ -15,12 +15,12 @@ namespace NEAT{
 		Network(Network&&);
 		~Network();
 		void clear();
-		Network& operator=(const Network&) = delete;
-		Network& operator=(Network&&) = delete;
+		Network& operator=(const Network&) 	= delete;
+		Network& operator=(Network&&) 		= delete;
 
-		void write(const std::string& path);
+		void write(const std::string& path) const;
 		void read (const std::string& path);
-		void print();
+		void print() const;
 
 		//functions for GA::Evolver
 		static Network 		create 	 (const GA::Evolver<Network>*);
@@ -29,12 +29,12 @@ namespace NEAT{
 		static double		evaluate (const Network&);
 		static std::string	toString (const Network&);
 
-		unsigned getNumInputs() 	 const;
-		unsigned getNumHidden() 	 const;
-		unsigned getNumOutputs() 	 const;
-		unsigned getNumNodes() 		 const;
-		unsigned getNumConnections() const;
-		const std::vector<Connection*>& getConnections() const;
+		inline unsigned getNumInputs() 		const { return numInputs;  }
+		inline unsigned getNumHidden() 		const { return numHidden;  }
+		inline unsigned getNumOutputs() 	const { return numOutputs; }
+		inline unsigned getNumNodes() 		const { return numNodes; }
+		inline unsigned getNumConnections()	const { return connections.size(); }
+		inline const std::vector<Connection*>& getConnections() const{ return connections; }
 		double getBias(unsigned node) const; //0. if not found
 
 		VecD evaluate(const VecD& input) const; //returns output
@@ -50,10 +50,10 @@ namespace NEAT{
 
 		void initialize();
 
-		bool isOutputNode(unsigned n);
-		unsigned countNode(unsigned n, bool countPreToo);
-		bool isInPast(unsigned from, unsigned to); //tests if 'from' is in past of node 'to', in order to prevent loop formation
-		unsigned connectionExists(unsigned from, unsigned to, bool checkDisabled); //checks both from-to and to-from
+		bool isOutputNode(unsigned n) const;
+		unsigned countNode(unsigned n, bool countPreToo) const;
+		bool isInPast(unsigned from, unsigned to) const; //tests if 'from' is in past of node 'to', in order to prevent loop formation
+		unsigned connectionExists(unsigned from, unsigned to, bool checkDisabled) const; //checks both from-to and to-from
 
 		void addNode(unsigned id, bool isInit);
 		void addConnection(unsigned from, unsigned to, bool isInit); //doesn't check if connection already exists in Network (only in params)

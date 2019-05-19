@@ -35,7 +35,7 @@ namespace GA{
 
 		StopReason start(unsigned eliteCount, double crossoverProb, double mutateProb);
 		StopReason step(unsigned eliteCount, double crossoverProb, double mutateProb);
-		void finish(StopReason stop);
+		void finish(StopReason stop) const;
 
 		void evolve(unsigned eliteCount, double crossoverProb, double mutateProb);
 
@@ -45,7 +45,7 @@ namespace GA{
 		inline void setEvaluate	(double		(*func)	(const Ind&, const Evolver<Ind>*), Objective);
 		inline void setToString	(std::string(*func)	(const Ind&));
 
-		inline Ind& 	getBest();
+		inline const Ind& 	getBest() const;
 		inline double 	getBestFitness() const;
 		void printPopulation() const;
 
@@ -57,8 +57,8 @@ namespace GA{
 		unsigned 	numThreads;
 
 	protected:
-		virtual unsigned selectParent(const VecD& fitness_cumulative, int other = -1); //to be replaced by similarity selection in NEAT
-	
+		virtual unsigned selectParent(const VecD& fitness_cumulative, int other = -1) const; //to be replaced by similarity selection in NEAT
+		
 		unsigned populationSize;
 		Population<Ind>* population;
 
@@ -69,7 +69,7 @@ namespace GA{
 		std::string	(*toString)	(const Ind&);
 		
 	private:
-		Clock C;
+		mutable Clock C;
 
 		Objective obj;
 		unsigned generationStep;
@@ -81,13 +81,13 @@ namespace GA{
 		StopReason updateFitness();
 
 		inline void findElite(unsigned elite_count);
-		StopReason stopCriteria(double oldBest, double newBest, double oldAverage, double newAverage);
+		StopReason stopCriteria(double oldBest, double newBest, double oldAverage, double newAverage) const;
 
 		void generation(unsigned eliteCount, double crossoverProb, double mutateProb);
-		void checkSettings(unsigned eliteCount, double crossoverProb, double mutateProb);
+		void checkSettings(unsigned eliteCount, double crossoverProb, double mutateProb) const;
 		// void preSelection(unsigned elite_count);
 		void crossoverAndMutate(double crossoverProb, double mutateProb);
-		inline void printGen();
+		inline void printGen() const;
 	};
 
 	template <typename Ind> inline void 		mutate_default	(Ind&, const Evolver<Ind>*)	{ return; }

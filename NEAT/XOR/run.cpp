@@ -43,7 +43,7 @@ int main(){
 	ga.maxGenerations = 100;
 	ga.evolve(10,0.9,1);
 
-	NEAT::Network *best = &ga.getBest();
+	const NEAT::Network *best = &ga.getBest();
 	print(NEAT::Network::toString(*best));
 	print("Best Fitness = ",(4.-ga.getBestFitness())*25.);
 

@@ -47,7 +47,7 @@ void Evolver<Ind>::clear(){
 }
 
 template <typename Ind>
-inline Ind&  	Evolver<Ind>::getBest()				{ return population->pop[population->bestRank]->I; }
+inline const Ind&  	Evolver<Ind>::getBest() const	{ return population->pop[population->bestRank]->I; }
 template <typename Ind>
 inline double 	Evolver<Ind>::getBestFitness() const{ return population->pop[population->bestRank]->fitness; }
 
@@ -102,7 +102,7 @@ StopReason Evolver<Ind>::step(unsigned eliteCount, double crossoverProb, double 
 }
 
 template <typename Ind>
-void Evolver<Ind>::finish(StopReason stop){
+void Evolver<Ind>::finish(StopReason stop) const{
 	if(verbose) printStopReason(stop);
 
 	if(verbose){
@@ -125,7 +125,7 @@ void Evolver<Ind>::evolve(unsigned eliteCount, double crossoverProb, double muta
 }
 
 template <typename Ind>
-inline void Evolver<Ind>::printGen(){
+inline void Evolver<Ind>::printGen() const{
 	if(verbose)
 		printf("Generation [%3d]; Best=%.3e; Average=%.3e; Best genes=%s; Time=%lfs\n",
 			generationStep,population->pop[population->bestRank]->fitness,population->fitnessSum/populationSize,toString(population->pop[population->bestRank]->I).c_str(),C.L());
@@ -133,7 +133,7 @@ inline void Evolver<Ind>::printGen(){
 
 
 template <typename Ind>
-unsigned Evolver<Ind>::selectParent(const VecD& fitness_cumulative, int other)
+unsigned Evolver<Ind>::selectParent(const VecD& fitness_cumulative, int other) const
 {
 	double fitnessSum_norm = fitness_cumulative.back();
 	double target = generator.getD(0.,fitnessSum_norm);
@@ -294,7 +294,7 @@ StopReason Evolver<Ind>::updateFitness(){
 
 
 template <typename Ind>
-StopReason Evolver<Ind>::stopCriteria(double oldBest, double newBest, double oldAverage, double newAverage){
+StopReason Evolver<Ind>::stopCriteria(double oldBest, double newBest, double oldAverage, double newAverage) const{
 	static unsigned bestStallCount 		= 0;
 	static unsigned averageStallCount 	= 0;
 
@@ -326,7 +326,7 @@ StopReason Evolver<Ind>::stopCriteria(double oldBest, double newBest, double old
 }
 
 template <typename Ind>
-void Evolver<Ind>::checkSettings(unsigned eliteCount, double crossoverProb, double mutateProb){
+void Evolver<Ind>::checkSettings(unsigned eliteCount, double crossoverProb, double mutateProb) const{
 	if(create==nullptr)
 		throw std::runtime_error("create() is not set.");
 	if(crossover==nullptr)

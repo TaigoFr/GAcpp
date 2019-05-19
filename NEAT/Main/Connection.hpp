@@ -24,14 +24,14 @@ namespace NEAT {
 
 		static Connection read(const std::string& str);
 
-		std::string toString(bool weightIfDisabled, unsigned precision);
+		std::string toString(bool weightIfDisabled, unsigned precision) const;
 		static std::string toString(const std::vector<Connection*> &net);
 
-		static bool compare(const Connection* c1, const Connection* c2);
+		inline static bool compare(const Connection* c1, const Connection* c2){ return c1->innovationNumber < c2->innovationNumber; }
 
-		bool getEnabled();
-		void enable();
-		void disable();
+		inline bool getEnabled() const{ return enabled; }
+		inline void enable() { enabled = true; }
+		inline void disable(){ enabled = false; }
 
 		double weight;
 	private:

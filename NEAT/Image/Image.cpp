@@ -123,7 +123,6 @@ double Image::evaluate(const MatrixD& mat, const GA::Evolver<MatrixD>* ev){
 
 	return attraction + repulsion;
 }
-std::string	Image::toString(const MatrixD& M){ return M.toString("  "); } //" " so that a \n is inserted after title in MatrixD::toString
 
 double Image::nodeDistance(const MatrixD& mat, unsigned n1, unsigned n2, double power){
 	if(n1==0 || n2==0 || n1 > mat.getNL() || n2 > mat.getNL())
@@ -141,7 +140,7 @@ double Image::nodeDistance(const MatrixD& mat, unsigned n1, unsigned n2, double 
 	return pow(norm2,power/2.);
 }
 
-void Image::print(){ ::print(toString(getBest())); }
+void Image::print() const{ ::print(toString(getBest())); }
 void Image::draw(float screenWidth, float screenHeight){
 	window.create(sf::VideoMode(screenWidth, screenHeight), "Visualizer");
 	window.clear(sf::Color::White);
@@ -196,11 +195,8 @@ void Image::wait(){
 		}
 	}
 }
-void Image::close(){
-	window.close();
-}
 
-void Image::save(const std::string& name){
+void Image::save(const std::string& name) const{
 	std::string path = checkFileName(name,".png");
 	
 	sf::Texture texture;
@@ -210,7 +206,7 @@ void Image::save(const std::string& name){
 }
 
 
-sf::RectangleShape Image::createRect(float x1, float y1, float x2, float y2, float thickness, sf::Color color) {
+sf::RectangleShape Image::createRect(float x1, float y1, float x2, float y2, float thickness, sf::Color color){
 	sf::RectangleShape rect;
 	rect.setPosition(x1, y1);
 	rect.setSize(sf::Vector2f(std::sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)), thickness));

@@ -15,7 +15,7 @@ void Evolver::evolve(unsigned eliteCount, double crossoverProb, double mutatePro
 	GA::Evolver<Network>::evolve(eliteCount, crossoverProb, mutateProb);
 }
 
-unsigned Evolver::selectParent(const VecD& fitness_cumulative, int other){
+unsigned Evolver::selectParent(const VecD& fitness_cumulative, int other) const{
 	if(other<0)
 		return GA::Evolver<Network>::selectParent(fitness_cumulative, other);
 

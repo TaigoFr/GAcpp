@@ -14,6 +14,6 @@ namespace NEAT{
 
 		Parameters params;
 	private:
-		unsigned selectParent(const VecD& fitness_cumulative, int other = -1);
+		unsigned selectParent(const VecD& fitness_cumulative, int other = -1) const;
 	};
 };
