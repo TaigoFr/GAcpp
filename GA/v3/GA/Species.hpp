@@ -3,10 +3,6 @@
 #include "Vec.hpp"
 #include "Individual.hpp"
 
-
-////TEMPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
-#include <cstdio>
-
 template <typename Ind>
 class Population{
 public:
@@ -25,7 +21,7 @@ public:
 		}
 	}
 
-	VecD printFitness() const{
+	VecD printfitness_orig() const{
 		VecD fitness_orig(pop.size());
 		for(unsigned i=0; i<pop.size(); ++i)
 			fitness_orig[i] = (pop[i]==nullptr ? 0 : pop[i]->fitness_orig);
