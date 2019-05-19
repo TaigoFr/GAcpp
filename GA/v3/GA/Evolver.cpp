@@ -8,19 +8,19 @@ void GA::printStopReason(StopReason stop){
 	switch(stop)
 	{
 		case StopReason::Undefined:
-		str = "No-stop";
-		break;
+			str = "No-stop";
+			break;
 		case StopReason::MaxGenerations:
-		str = "Maximum generation reached";
-		break;
+			str = "Maximum generation reached";
+			break;
 		case StopReason::StallAverage:
-		str = "Average stalled";
-		break;
+			str = "Average stalled";
+			break;
 		case StopReason::StallBest:
-		str = "Best stalled";
-		break;
+			str = "Best stalled";
+			break;
 		default:
-		str = "Unknown reason";
+			str = "Unknown reason";
 	}
 
 	std::cout << "Stop criteria: ";

@@ -3,3 +3,5 @@ All GA and NEAT for's by FOR
 
 updateFitness
 change bestRank pragma to 2nd for with no pragma comparing fitnesses alone
+
+errorMsg instead of explicit throw exception

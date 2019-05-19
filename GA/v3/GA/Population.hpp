@@ -13,7 +13,7 @@ public:
 	, speciation_threshold(_speciation_threshold)
 	, bestSpecies(0)
 	, totalFitnessSum(0.)
-	{ species[0] = new Species<Ind>(); }
+	{ species[0] = new Species<Ind>; }
 
 	~Population(){ clear(); }
 
@@ -26,6 +26,7 @@ public:
 				species[i] = nullptr;
 			}
 		}
+		// printf("Out Population::clear()\n");
 	}
 
 	inline const Ind&  	getBest() 		 	 	const{ return species[bestSpecies]->getBest(); }
@@ -35,7 +36,7 @@ public:
 	inline unsigned numSpecies(){ return species.size(); }
 
 	static bool compareSpecies(Species<Ind>* left, Species<Ind>* right)
-	{ return (left==nullptr || right==nullptr) ? false : ((left->getBestFitness()) > (right->getBestFitness())); }
+	{ return (left==nullptr || right==nullptr) ? false : ((left->getBestFitnessEvolver()) > (right->getBestFitnessEvolver())); }
 
 	Vec<Species<Ind>*> species;
 	const double speciation_threshold;

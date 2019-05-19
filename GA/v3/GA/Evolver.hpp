@@ -82,7 +82,7 @@ namespace GA{
 		inline void initiatePopulation();
 		StopReason updateFitness();
 
-		void findElite(unsigned elite_count, Population<Ind> *offspring);
+		unsigned findElite(unsigned elite_count, Population<Ind> *offspring);
 		void nullifyElite(unsigned elite_count);
 		StopReason stopCriteria(double oldBest, double newBest, double oldAverage, double newAverage) const;
 

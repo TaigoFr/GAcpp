@@ -66,7 +66,8 @@ int main(){
 	// ga1.setToString(toString);
 	// ga1.evolve(10,0.7,0.4);
 
-	GA::Evolver<VecD> ga2(10000);
+	GA::Evolver<VecD> ga2(10, 0.5);
+	// GA::Evolver<VecD> ga2(10000);
 	// GA::Evolver<VecD> ga2(10000000);
 	ga2.setCreate(create_rastrigin); //same for sphere
 	ga2.setCrossover(crossover);
@@ -74,7 +75,8 @@ int main(){
 	ga2.setMutate(mutate_rastrigin);
 	ga2.setToString(toString);
 	// ga2.numThreads = 7;
-	ga2.maxGenerations = 1000;
+	ga2.maxGenerations = 100;
+	// ga2.maxGenerations = 1000;
 	ga2.evolve(10,0.7,0.1);
 
 	std::cout << toString(ga2.getBest()) << std::endl;
