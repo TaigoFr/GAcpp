@@ -67,6 +67,8 @@ public:
 	//bias (due to calling Clock): ~50ns (0.05us)
 	template<typename T_out, typename ... ARGS1, typename ... ARGS2>
 	static void stats(unsigned N, T_out (*func)(ARGS1 ...), ARGS2 && ... args);
+	template<typename T_out, typename ... ARGS1, typename ... ARGS2>
+	static void statsV(unsigned N, T_out (*func)(ARGS1 ...), ARGS2 && ... args); //average and std dev. of output itself
 
 	//sleep for a given number of seconds (only for current thread if multiple threads are used)
 	static inline void sleep(double secs) { std::this_thread::sleep_for(std::chrono::microseconds((int)(secs*1.e6))); /*usleep(secs*1.e6);*/ }
@@ -119,5 +121,24 @@ void Clock::stats(unsigned N, T_out (*func)(ARGS1 ...), ARGS2 && ... args){
 	printf("TIME\t = %lf (%u iterations)\n",sum*N,N);
 	printf("AVERAGE\t = %lf\n",sum);
 	// if(N>1)	printf("STD.DEV. = %lf +- %lf (%lf%% | %lf)\n",sum2,sum4,sum2/sum,sum4/sum2);
+	if(N>1)	printf("STD.DEV. = %lf (%lf%%)\n",sum2,sum2/sum);
+}
+
+template<typename T_out, typename ... ARGS1, typename ... ARGS2>
+void Clock::statsV(unsigned N, T_out (*func)(ARGS1 ...), ARGS2 && ... args){
+	if(N==0) return;
+	T_out sum = 0., sum2 = 0.;
+
+	//Calculate sum(t) and sum(t^2) to calculate mean and variance
+	for(unsigned i=0; i<N; i++){
+		T_out t = func(args...);
+		sum += t;
+		sum2 += t*t;
+	}
+	sum /= N; //mean
+	if(N>1)
+		sum2 = sqrt(sum2/(N-1.) - sum*sum*N/(N-1.)); //population/sample standard deviation
+
+	printf("AVERAGE\t = %lf\n",sum);
 	if(N>1)	printf("STD.DEV. = %lf (%lf%%)\n",sum2,sum2/sum);
 }

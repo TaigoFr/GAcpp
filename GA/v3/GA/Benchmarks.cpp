@@ -1,11 +1,12 @@
 
+#include "Tools.hpp" //errorMsg.hpp
 #include "Benchmarks.hpp"
 #include <cmath>
 
 double Benchmarks::sphere(const VecD& v, const GA::Evolver<VecD>*) { return v.norm()/sqrt(v.size()); }
 double Benchmarks::rosenbrock(const VecD& v, const GA::Evolver<VecD>*){
 	if(v.size() < 2)
-		throw std::runtime_error("VecD minimum size is 2.");
+		errorMsg("VecD minimum size is 2.");
 	return 100.*(v[0]*v[0]-v[1])*(v[0]*v[0]-v[1])+(1.-v[0])*(1.-v[0]);
 }
 double Benchmarks::step(const VecD& v, const GA::Evolver<VecD>*){
@@ -24,7 +25,7 @@ double Benchmarks::foxholes(const VecD& v, const GA::Evolver<VecD>*){
 	static double aij[2][25] = {{-32,16,0,16,32, -32,16,0,16,32, -32,16,0,16,32, -32,16,0,16,32, -32,16,0,16,32},{-32,-32,-32,-32,-32, -16,-16,-16,-16,-16, 0,0,0,0,0, 32,32,32,32,32, 16,16,16,16,16}};
 
 	if(v.size() < 2)
-		throw std::runtime_error("VecD minimum size is 2.");
+		errorMsg("VecD minimum size is 2.");
 
 	double out = 0.002;
 	for(unsigned j=0; j<25; ++j)
@@ -36,7 +37,7 @@ double Benchmarks::foxholes(const VecD& v, const GA::Evolver<VecD>*){
 
 double Benchmarks::demo1(const VecD& v, const GA::Evolver<VecD>*){
 	if(v.size() < 2)
-		throw std::runtime_error("VecD minimum size is 2.");
+		errorMsg("VecD minimum size is 2.");
 
 	double x = v[0], y = v[1];
 

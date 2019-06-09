@@ -66,7 +66,7 @@ template <class T>
 void Vec<T>::setEntries(int n, const T& value){
 	//case of stdarg entry
 	if(!this->empty() && n==-1){
-		while(n<0) n+=size();
+		if(size()) while(n<0) n+=size();
 		(*this)[n]=value;
 		return;
 	}
@@ -162,12 +162,12 @@ void Vec<T>::setEntries(const int n, const T x, T2...rest){
 
 template <class T>
 T& Vec<T>::get(int i){
-	while(i<0) i+=size();
+	if(size()) while(i<0) i+=size();
 	return (*this)[i];
 }
 template <class T>
 const T& Vec<T>::get(int i) const{
-	while(i<0) i+=size();
+	if(size()) while(i<0) i+=size();
 	return (*this)[i];
 }
 template <class T>
@@ -940,8 +940,8 @@ Vec<T>& Vec<T>::swap(const unsigned a,const unsigned b){
 
 template <class T>
 Vec<T> Vec<T>::reduce(int start, int end) const&{
-	while(start<0) start+=size();
-	while(end<0) end+=size();
+	if(size()) while(start<0) start+=size();
+	if(size()) while(end<0) end+=size();
 
 	if(start >= (int)size()) start=size()-1;
 	if(end >= (int)size()) end=size()-1;
@@ -957,8 +957,8 @@ Vec<T> Vec<T>::reduce(int start, int end) const&{
 }
 template <class T>
 Vec<T>&& Vec<T>::reduce(int start, int end) &&{
-	while(start<0) start+=size();
-	while(end<0) end+=size();
+	if(size()) while(start<0) start+=size();
+	if(size()) while(end<0) end+=size();
 
 	if(start >= (int)size()) start=size()-1;
 	if(end >= (int)size()) end=size()-1;
@@ -974,14 +974,20 @@ Vec<T>&& Vec<T>::reduce(int start, int end) &&{
 }
 
 template <class T>
-Vec<T>& Vec<T>::remove(int start, int end){
-	while(start<0) start+=size(); //or recursion "remove(start+N,end)"
+Vec<T>& Vec<T>::remove(int start, int end, bool force){
+	if(size()) while(start<0) start+=size(); //or recursion "remove(start+N,end)"
 
-	if(end<start || end >= (int)size()) end=start;
-	else if(start>end){
-		int temp = start;
-		start = end;
-		end = temp;
+	if(force){
+		if(end<start || end >= (int)size()) end=start;
+		else if(start>end){
+			int temp = start;
+			start = end;
+			end = temp;
+		}
+	}
+	else{
+		if(size()) while(end<0) end+=size(); //or recursion "remove(start,end+N)"
+		if(end < start) return *this;
 	}
 
 	FORV(i,start,size()-(end-start+1)) (*this)[i]=(*this)[i+end-start+1];
@@ -1006,7 +1012,7 @@ template <class T>
 Vec<T>& Vec<T>::insert(const Vec<T>& v, int index){
 	if(v.size()==0) return *this;
 	if(index<0){
-		while(index<0) index+=size();
+		if(size()) while(index<0) index+=size();
 		index++; //to place it after, as usual default is place before
 	}
 	if(index > (int)size()) index=size();
@@ -1170,8 +1176,9 @@ inline T Vec<T>::sum() const{
 
 template <class T>
 Vec<T> Vec<T>::shift(int s) const&{
-	if(s<0)
-		while(s<0) s+=size();
+	if(s<0){
+		if(size()) while(s<0 ) s+=size();
+	}
 	else
 		s=s%size();
 
@@ -1183,8 +1190,9 @@ Vec<T> Vec<T>::shift(int s) const&{
 }
 template <class T>
 Vec<T>&& Vec<T>::shift(int s) &&{
-	if(s<0)
-		while(s<0) s+=size();
+	if(s<0){
+		if(size()) while(s<0) s+=size();
+	}
 	else
 		s=s%size();
 

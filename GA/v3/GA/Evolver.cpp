@@ -3,30 +3,21 @@
 
 Random GA::generator;
 
-void GA::printStopReason(StopReason stop){
-	std::string str;
-	switch(stop)
-	{
-		case StopReason::Undefined:
-			str = "No-stop";
-			break;
-		case StopReason::MaxGenerations:
-			str = "Maximum generation reached";
-			break;
-		case StopReason::StallAverage:
-			str = "Average stalled";
-			break;
-		case StopReason::StallBest:
-			str = "Best stalled";
-			break;
-		default:
-			str = "Unknown reason";
-	}
+GA::Parameters::Parameters():
+eliteCount(0)
+,crossoverProb(1.)
+,mutateProb(0.1)
 
-	std::cout << "Stop criteria: ";
-	if(stop == StopReason::Undefined)
-		std::cout << "There is a bug in this function";
-	else
-		std::cout << str;
-	std::cout << std::endl;
-}
+,numThreads(1)
+
+,oldPenalty(0.01)
+,youthBoost(1.0)
+,oldAge(20)
+,youthAge(10)
+
+,survivalThreshold(0.2)
+,obliterationRate(5)
+
+,interSpeciesProb(0.005)
+{}
+

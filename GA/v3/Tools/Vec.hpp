@@ -268,9 +268,9 @@ public:
 
 	Vec   reduce(int start=0, int end=-1) const&; //vector with the elements of the vector between indexes 'start' and 'end'
 	Vec&& reduce(int start=0, int end=-1) &&; //vector with the elements of the vector between indexes 'start' and 'end'
-	Vec&  remove(int start=0, int end=-1);	//remove index 'index'
+	Vec&  remove(int start=0, int end=-1, bool force=true);	//remove index 'index'
 	Vec&  removeV(const T&);	//remove value
-	inline Vec& erase(int start=0, int end=-1){return remove(start,end);}
+	inline Vec& erase(int start=0, int end=-1){return remove(start,end,false);}
 	Vec& pop(){return remove(-1);}
 
 	//negative indexes correspond to counting from the back and placing AFTERWARDS instead of AT index

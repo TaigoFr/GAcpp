@@ -1,0 +1,60 @@
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////// GA PARAMETERS ////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+//size of population
+populationSize 				= 10000
+
+//top best 'eliteCount' individuals automatically pass to next generation
+eliteCount 					= 10 	//default = 0
+
+//probability of crossover and mutation
+crossoverProb 				= 0.7 	//default = 1.
+mutateProb 					= 0.1 	//default = 0.1
+
+//dissimilarity threshold to create species
+//speciationThreshold 		= -1 	//default = -1
+
+//print output; default=1
+//verbose 					= 1
+
+//number of threads used in evolution; default; default=1
+//numThreads 				= 1
+
+//age and penalty/boost given to organisms who are considered old or young
+//oldAge 					= 20 	//default = 20
+//oldPenalty 				= 0.01 	//default = 0.01
+//youthAge 					= 10 	//default = 10
+//youthBoost 				= 1.0 	//default = 1.0
+
+//percentage of species that is killed before reproduction (the weakest individuals)
+//survivalThreshold 		= 0.2	//default = 0.2
+
+//number of generations before the worst species is obliterated with no elite or children allowed to the next generations
+//obliterationRate 			= 5 	//default = 5
+
+//probability of reproduction between different species
+//interSpeciesProb 			= 0.005 //default = 0.005
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////// STOPPING CRITERIA /////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+maxGenerations 				= 100
+
+//averageStalledTol 		= 1.e-6
+//averageStalledMax 		= 15
+
+//bestStalledTol 			= 1.e-8
+//bestStalledMax 			= 15
+
+averageRelativeStalledTol 	= 0.1
+averageRelativeStalledMax 	= 15
+
+//bestRelativeStalledTol 	= 0.0001
+//bestRelativeStalledMax 	= 1
+
+///////////////////////////////////////////////////////////////////////////////////////////////

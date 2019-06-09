@@ -6,6 +6,7 @@
 Random::Random(){
 	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
 	generator.seed(seed);
+	// generator.seed(2);
 }
 
 int Random::getI(int min, int max){

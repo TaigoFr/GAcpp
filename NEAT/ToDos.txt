@@ -1,7 +1,6 @@
-Toggle on and off genes in mutation (&& see all mutations of NEAT)
-All GA and NEAT for's by FOR
 
-updateFitness
-change bestRank pragma to 2nd for with no pragma comparing fitnesses alone
+comment NEAT
 
-errorMsg instead of explicit throw exception
+Note:
+	- preferSimilarFactor removed now that Species are introduced
+	- crossover_singlepoint not implemented (can lead to disconnected networks and doesn't seem trivial how to fix that), plus NEAT almost always uses it as 0
