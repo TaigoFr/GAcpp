@@ -4,8 +4,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 //number of inputs and outputs of neural networks
-numInputs 							= 5
-numOutputs 							= 5
+numInputs 							= 3
+numOutputs 							= 1
 
 //probability of doing averaging crossover instead of normal crossover
 //rateCrossoverAverage				= 0.4	//default = 0.4
@@ -23,8 +23,8 @@ mutateRateNewNode					= 1. 	//default = 0.1
 //mutateRateEnableChance 			= 0.875 //default = 0.875
 //enableInExcessOrDisjoint 			= 1 	//default = 1 (true)
 
-//weight shifts for mutations
-//maxInitWeight						= 1.0 	//default = 1.0
+//weight shifts when adding connections
+maxInitWeight						= 8.0 	//default = 1.0
 //maxWeight							= 8.0 	//default = 8.0
 
 //species similarity weighting factors
@@ -78,7 +78,7 @@ mutateProb 					= 1 	//default = 0.1
 /////////////////////////////////// STOPPING CRITERIA /////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-maxGenerations 				= 5
+maxGenerations 				= 10
 
 //averageStalledTol			= 1.e-6
 //averageStalledMax			= 15

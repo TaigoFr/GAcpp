@@ -81,7 +81,7 @@ public:
 
 	void printFitness() const{
 		FORV(s,numSpecies()){
-			printf("\tSpecies ID=%d; Best=%.3e; Average=%.3e; Size=%d\n",
+			printf("\tSpecies ID=%d; Best=%.3e; Average=%.3e; Size=%3d || ",
 					species[s]->id, species[s]->getBestFitness(), 
 					species[s]->fitnessSum_orig/species[s]->size(),
 					species[s]->size());

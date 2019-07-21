@@ -222,10 +222,11 @@ inline void Evolver<Ind>::printGen() const{
 			,population->getBestFitness()
 			,population->totalFitnessSum_orig/populationSize
 			,toString(population->getBest()).c_str());
-		if(population->speciation_threshold >= 0. && dissimilarity!=nullptr )
+		if(population->speciation_threshold >= 0. && dissimilarity!=nullptr ){
 			printf("#species=%d; ",population->numSpecies());
+			printf("\n");population->printFitness();
+		}
 		printf("Time=%lfs\n",C.L());
-		// population->printFitness();
 	}
 
 }

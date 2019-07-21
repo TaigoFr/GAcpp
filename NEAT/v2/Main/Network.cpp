@@ -192,7 +192,8 @@ void Network::mutate(Network& child, const GA::Evolver<Network>*){
 }
 std::string	Network::toString(const Network& net){
 	std::stringstream str;
-	str << "N" << net.getNumNodes() << "H" << net.getNumHidden() << Connection::toString(net.connections);
+	// str << "N" << net.getNumNodes() << "H" << net.getNumHidden() << Connection::toString(net.connections);
+	str << "N" << net.getNumNodes() << "H" << net.getNumHidden() /*<< Connection::toString(net.connections)*/;
 	return str.str();
 }
 void Network::print() const{ ::print(toString(*this)); } //not set as inline not to include "Tools" directly in Network
@@ -380,7 +381,7 @@ double Network::dissimilarity(const Network& n1, const Network& n2){
 
 	while(inno1 < last && inno2 < last){
 		if(inno1==inno2){
-			totalWeightDifference += std::abs( n1.connections[iter1]->weight - n2.connections[iter2]->weight );
+			totalWeightDifference += fabs( n1.connections[iter1]->weight - n2.connections[iter2]->weight );
 			++numMatching;
 		}
 		//if we're at a bias, don't count it for 'numExcessConnections' or 'numDisjointConnections'

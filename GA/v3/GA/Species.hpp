@@ -49,7 +49,7 @@ public:
 		VecD fitness(pop.size());
 		FORV(i,pop.size()) fitness[i] = (pop[i]==nullptr ? 0 : pop[i]->fitness);
 		// fitness.print();
-		printf("Average = %lf\nBest = %lf\n",fitness.sum()/pop.size(),fitness.max());
+		printf("Average = %lf; Best = %lf\n",fitness.sum()/pop.size(),fitness.max());
 		return fitness;
 	}
 
