@@ -23,6 +23,7 @@ Parameters()
 ,evaluate(nullptr)
 ,toString(toString_default)
 ,dissimilarity(nullptr)
+,printPopulation(nullptr)
 
 ,C("",Clock::stop)
 ,obj(NONE)
@@ -205,10 +206,10 @@ template <typename Ind>
 void Evolver<Ind>::evolve(){
 	StopReason stop = start();
 
-	// printPopulation();
+	if(printPopulation!=nullptr) printPopulation(population);
 	while(stop==StopReason::Undefined){
 		stop = step();
-		// printPopulation();
+		if(printPopulation!=nullptr) printPopulation(population);
 	}
 	
 	finish(stop);
@@ -666,5 +667,7 @@ template <typename Ind> inline void Evolver<Ind>::setToString		(std::string(*fun
 { toString		= func; }
 template <typename Ind> inline void Evolver<Ind>::setDissimilarity	(double		(*func)	(const Ind&, const Ind&))
 { dissimilarity	= func; }
+template <typename Ind> inline void Evolver<Ind>::setPrintPopulation(void		(*func)	(const Population<Ind>*))
+{ printPopulation = func; }
 
 #endif

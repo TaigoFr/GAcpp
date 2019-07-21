@@ -192,11 +192,15 @@ void Network::mutate(Network& child, const GA::Evolver<Network>*){
 }
 std::string	Network::toString(const Network& net){
 	std::stringstream str;
-	// str << "N" << net.getNumNodes() << "H" << net.getNumHidden() << Connection::toString(net.connections);
 	str << "N" << net.getNumNodes() << "H" << net.getNumHidden() /*<< Connection::toString(net.connections)*/;
 	return str.str();
 }
-void Network::print() const{ ::print(toString(*this)); } //not set as inline not to include "Tools" directly in Network
+std::string	Network::toStringFull(const Network& net){
+	std::stringstream str;
+	str << "N" << net.getNumNodes() << "H" << net.getNumHidden() << Connection::toString(net.connections);
+	return str.str();
+}
+void Network::print() const{ ::print(toStringFull(*this)); } //not set as inline not to include "Tools" directly in Network
 
 
 Network Network::crossoverNormal(const Network& n1, const Network& n2, double fit1, double fit2){

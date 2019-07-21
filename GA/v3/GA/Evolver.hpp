@@ -68,10 +68,10 @@ namespace GA{
 		inline void setEvaluate		(double		(*func)	(const Ind&, const Evolver<Ind>*), Objective);
 		inline void setToString		(std::string(*func)	(const Ind&));
 		inline void setDissimilarity(double		(*func)	(const Ind&, const Ind&));
+		inline void setPrintPopulation(void 	(*func)	(const Population<Ind>*));
 
 		inline const Ind& 	getBest() const;
 		inline double 		getBestFitness() const;
-		inline void printPopulation() const{ population->print(); }
 
 		inline void addCriteria(StopReason stop, const VecD& params){ criteria.addCriteria(stop, params); }
 
@@ -88,6 +88,7 @@ namespace GA{
 		double		(*evaluate)		(const Ind&, const Evolver<Ind>*);
 		std::string	(*toString)		(const Ind&);
 		double		(*dissimilarity)(const Ind&, const Ind&);
+		void		(*printPopulation)(const Population<Ind>*);
 		
 	private:
 		mutable Clock C;
@@ -118,6 +119,7 @@ namespace GA{
 	template <typename Ind> inline void 		mutate_default	(Ind&, const Evolver<Ind>*)		{ return; }
 	template <typename Ind> inline std::string 	toString_default(const Ind&)					{ return ""; }
 	// template <typename Ind> inline double 		dissimilarity_default(const Ind&, const Ind&) 	{ return generator(); }
+	template <typename Ind> inline void printPopulation_default	(const Population<Ind>* pop) 	{ pop->print(); } //to use if needed
 
 	//include insine namespace
 	#include "Evolver.impl.hpp"

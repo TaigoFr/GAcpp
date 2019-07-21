@@ -28,6 +28,7 @@ namespace NEAT{
 		static void 		mutate	 (Network&, const GA::Evolver<Network>*);
 		static double		evaluate (const Network&);
 		static std::string	toString (const Network&);
+		static std::string	toStringFull (const Network&);
 
 		inline unsigned getNumInputs() 		const { return numInputs;  }
 		inline unsigned getNumHidden() 		const { return numHidden;  }
