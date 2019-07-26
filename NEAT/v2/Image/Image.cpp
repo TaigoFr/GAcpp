@@ -47,7 +47,7 @@ Image::Image(const Network& net, unsigned _populationSize, double _margin):
 }
 
 void Image::fileImageSettings(const std::string& file, const std::string& prefix){
-	FileParser fp(file,true);
+	FileParser fp(file, false);
 
 	if(!fp(prefix+"margin",margin))
 		errorMsg("margin is a mandatory parameter.");

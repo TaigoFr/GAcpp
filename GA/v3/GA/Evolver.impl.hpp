@@ -75,7 +75,7 @@ void Evolver<Ind>::clear(){
 
 template <typename Ind>
 void Evolver<Ind>::fileSettings(const std::string& file, const std::string& prefix){
-	FileParser fp(file,true);
+	FileParser fp(file, false);
 
 	double speciationThreshold;
 
@@ -206,10 +206,14 @@ template <typename Ind>
 void Evolver<Ind>::evolve(){
 	StopReason stop = start();
 
-	if(printPopulation!=nullptr) printPopulation(population);
+	if(printPopulation!=nullptr && !printPopulation(population))
+		stop = StopReason::UserTerminated;
+
 	while(stop==StopReason::Undefined){
 		stop = step();
-		if(printPopulation!=nullptr) printPopulation(population);
+
+		if(printPopulation!=nullptr && !printPopulation(population))
+			stop = StopReason::UserTerminated;
 	}
 	
 	finish(stop);
@@ -667,7 +671,7 @@ template <typename Ind> inline void Evolver<Ind>::setToString		(std::string(*fun
 { toString		= func; }
 template <typename Ind> inline void Evolver<Ind>::setDissimilarity	(double		(*func)	(const Ind&, const Ind&))
 { dissimilarity	= func; }
-template <typename Ind> inline void Evolver<Ind>::setPrintPopulation(void		(*func)	(const Population<Ind>*))
+template <typename Ind> inline void Evolver<Ind>::setPrintPopulation(bool		(*func)	(const Population<Ind>*))
 { printPopulation = func; }
 
 #endif

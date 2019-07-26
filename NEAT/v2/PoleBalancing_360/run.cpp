@@ -40,7 +40,7 @@ VecD invertedPendulumRHS(const VecD& x, const VecD& params){
 //inputs and outputs normalized between [0,1]
 double pole(const NEAT::Network& net, const GA::Evolver<NEAT::Network>*){
 	VecD x0(5);
-	x0[1] = 30.*toRAD;
+	x0[1] = 10.*toRAD;
 	// x0[1]=GA::generator(-thetaMAX,thetaMAX)*0.5;
 	// x0[2]=GA::generator(-xMAX,xMAX)*0.95; //make sure it starts inside the track
 	// x0[3]=GA::generator(-thetaDMAX,thetaDMAX);
@@ -84,7 +84,7 @@ int main(){
 	print("Best Fitness = ",ga.getBestFitness());
 
 	// pole2(*best,nullptr);
-	// best->write("pole_best.txt");
+	best->write("pole_best.txt");
 
 	NEAT::Image image(*best,"params_image.txt");
 	image.evolve();

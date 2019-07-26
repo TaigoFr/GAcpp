@@ -44,7 +44,7 @@ bool FileParser::get(const std::string& id, T& var){
 			print("FOUND parameter '",id,"'. Set to value ",var);
 		break;
 	}
-	if(!found) print("Parameter '",id,"' was NOT FOUND in file ",name);
+	if(!found && verbose) print("Parameter '",id,"' was NOT FOUND in file ",name);
 
 	file.clear();
 	file.seekg(0, std::ios::beg);
@@ -58,7 +58,7 @@ template <typename T>
 bool FileParser::get(const std::string& id, T& var, const T& def){
 	bool found = get(id,var);
 	if(!found){
-		print("Setting '",id,"' to its default value of ",def);
+		if(verbose) print("Setting '",id,"' to its default value of ",def);
 		var = def;
 	}
 	return found;

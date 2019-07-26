@@ -23,7 +23,7 @@ Evolver::Evolver(unsigned _populationSize, double speciation_threshold, bool ver
 }
 
 void Evolver::fileNEATSettings(const std::string& file, const std::string& prefix){
-	FileParser fp(file,true);
+	FileParser fp(file, false);
 
 	if(!fp(prefix+"numInputs",params.numInputs))
 		errorMsg("numInputs is a mandatory parameter.");

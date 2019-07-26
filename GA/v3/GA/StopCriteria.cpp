@@ -176,6 +176,9 @@ void StopCriteria::printStopReason(StopReason stop){
 		case StopReason::BestMinimum:
 			str = "Best Minimum reached";
 			break;
+		case StopReason::UserTerminated:
+			str = "User Terminated";
+			break;
 		default:
 			str = "Unknown reason";
 	}

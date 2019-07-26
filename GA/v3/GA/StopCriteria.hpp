@@ -14,6 +14,7 @@ namespace GA{
 		,BestRelativeStalled
 		,BestMaximum
 		,BestMinimum
+		,UserTerminated
 	};
 	void printStopReason(StopReason stop);
 
