@@ -10,13 +10,13 @@ using namespace NEAT;
 #include <iomanip> //std::setfill, std::setw
 
 Image::Image(const Network& net, const std::string& file, const std::string& prefix): GA::Evolver<MatrixD>(file,prefix)
-														  	,net(&net)
-										//set the defaults either here or directly in fileImageSettings (better here to avoid more output)
-															,margin(0.03)
-															,maxMutation(0.1)
-															,connectionAttractionPower(2.)
-															,nodeRepulsionPower(-1.)
-															,nodeRepulsionCoeff(6./4.)
+,net(&net)
+//set the defaults either here or directly in fileImageSettings (better here to avoid more output)
+,margin(0.03)
+,maxMutation(0.1)
+,connectionAttractionPower(2.)
+,nodeRepulsionPower(-1.)
+,nodeRepulsionCoeff(6./4.)
 {
 	verbose = false;
 	fileImageSettings(file,prefix);
@@ -28,16 +28,16 @@ Image::Image(const Network& net, const std::string& file, const std::string& pre
 	setToString(Image::toString);
 }
 Image::Image(const Network& net, unsigned _populationSize, double _margin):
-															 GA::Evolver<MatrixD>(_populationSize, -1, false)
-															// ,numInputs(net.getNumInputs())
-															// ,numOutputs(net.getNumOutputs())
-															// ,numNodes(net.getNumNodes())
-															,net(&net)
-															,margin(_margin)
-															,maxMutation(0.1)
-															,connectionAttractionPower(2.)
-															,nodeRepulsionPower(-1.)
-															,nodeRepulsionCoeff(6./4.)
+GA::Evolver<MatrixD>(_populationSize, -1, false)
+// ,numInputs(net.getNumInputs())
+// ,numOutputs(net.getNumOutputs())
+// ,numNodes(net.getNumNodes())
+,net(&net)
+,margin(_margin)
+,maxMutation(0.1)
+,connectionAttractionPower(2.)
+,nodeRepulsionPower(-1.)
+,nodeRepulsionCoeff(6./4.)
 {
 	setCreate(Image::create);
 	setCrossover(Image::crossover);
@@ -98,7 +98,8 @@ MatrixD Image::crossover(const MatrixD& p1,const MatrixD& p2, double, double){
 	MatrixD out(p1.getNL(),p2.getNC());
 
 	unsigned crossoverPoint = GA::generator.getI(0,p1.getNL());
-	FORV(i,p1.getNL()){ //will re-mix inputs and outputs, but it's ok, they're all the same
+	FORV(i,p1.getNL()){
+		//will re-mix inputs and outputs, but it's ok, they're all the same
 		if(i < crossoverPoint)
 			out[i] = p1[i];
 		else
@@ -114,7 +115,8 @@ void Image::mutate(MatrixD& mat, const GA::Evolver<MatrixD>* ev){
 	unsigned numOutputs = ((Image*)ev)->net->getNumOutputs();
 	double margin = ((Image*)ev)->margin;
 
-	FORV(i,numInputs+numOutputs, mat.getNL()){ //only mutate hidden nodes (recall that bias is not in 'mat')
+	FORV(i,numInputs+numOutputs, mat.getNL()){
+		//only mutate hidden nodes (recall that bias is not in 'mat')
 		mat[i][0] += GA::generator(-maxMutation,maxMutation);
 		if(mat[i][0]<2.*margin+epsilon)
 			mat[i][0] = 2.*margin+epsilon;
@@ -190,7 +192,7 @@ void Image::draw(float screenWidth, float screenHeight){
 		float color = Node::sigmoid(connections[i]->weight);
 		float mod = atan( fabs(connections[i]->weight)/4.f ) * 2.f / M_PI; 											//empirically tested
 		sf::RectangleShape rect = createRect(nodes[pre - 1][0] * screenWidth, nodes[pre - 1][1] * screenHeight,
-											 nodes[pos - 1][0] * screenWidth, nodes[pos - 1][1] * screenHeight,
+			nodes[pos - 1][0] * screenWidth, nodes[pos - 1][1] * screenHeight,
 											 6.f * ( 0.1 + 0.9 * mod ),												//empirically tested
 											 sf::Color((1 - color) * 255, color * 255, 0, 255*(0.3+0.3*mod))); 		//empirically tested
 		window.draw(rect);
@@ -214,16 +216,17 @@ void Image::draw(float screenWidth, float screenHeight){
 
 	window.display();
 }
+
+void Image::handleEvent(){
+	window.pollEvent(event);
+	if (event.type == sf::Event::Closed || 
+		(event.type == sf::Event::KeyPressed && (event.key.code == sf::Keyboard::Escape || event.key.code == sf::Keyboard::Return)))
+		close();
+}
+
 void Image::wait(){
-	sf::Event event;
 	while (window.isOpen())
-	{
-		window.pollEvent(event);
-		if (event.type == sf::Event::Closed || (event.type == sf::Event::KeyPressed && (event.key.code == sf::Keyboard::Escape || event.key.code == sf::Keyboard::Return))) {
-			close();
-			break;
-		}
-	}
+		handleEvent();
 }
 
 void Image::save(const std::string& name) const{
