@@ -51,6 +51,7 @@ Parameters()
 ,evaluate(nullptr)
 ,toString(toString_default)
 ,dissimilarity(nullptr)
+,printPopulation(nullptr)
 
 ,C("",Clock::stop)
 ,obj(NONE)
