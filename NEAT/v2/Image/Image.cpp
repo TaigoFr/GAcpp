@@ -173,11 +173,15 @@ double Image::nodeDistance(const MatrixD& mat, unsigned n1, unsigned n2, double 
 }
 
 void Image::print() const{ ::print(toString(getBest())); }
-void Image::draw(float screenWidth, float screenHeight){
-	window.create(sf::VideoMode(screenWidth, screenHeight), "Visualizer");
-	window.clear(sf::Color::White);
+
+sf::Sprite Image::makeImage(float width, float height){
+	static sf::RenderTexture image;
+
+	if (!image.create(width, height))
+		errorMsg("Could not create sf::RenderTexture - 'makeImage'");
+
+	image.clear(sf::Color::Transparent);
 	
-	// display SFMl image of network
 	const std::vector<Connection*> &connections = net->getConnections();
 	const MatrixD& nodes = getBest();
 
@@ -191,29 +195,41 @@ void Image::draw(float screenWidth, float screenHeight){
 
 		float color = Node::sigmoid(connections[i]->weight);
 		float mod = atan( fabs(connections[i]->weight)/4.f ) * 2.f / M_PI; 											//empirically tested
-		sf::RectangleShape rect = createRect(nodes[pre - 1][0] * screenWidth, nodes[pre - 1][1] * screenHeight,
-			nodes[pos - 1][0] * screenWidth, nodes[pos - 1][1] * screenHeight,
-											 6.f * ( 0.1 + 0.9 * mod ),												//empirically tested
+		sf::RectangleShape rect = createRect(nodes[pre - 1][0] * width, nodes[pre - 1][1] * height,
+			nodes[pos - 1][0] * width, nodes[pos - 1][1] * height,
+											 6.f * height / 900. * ( 0.1 + 0.9 * mod ),												//empirically tested
 											 sf::Color((1 - color) * 255, color * 255, 0, 255*(0.3+0.3*mod))); 		//empirically tested
-		window.draw(rect);
+		image.draw(rect);
 	}
 
 	sf::CircleShape circle;
-	float radius = (exp( - (net->getNumNodes() * net->getNumNodes() / 500.f) ) * 0.8 + 0.2) * 20.f; 				//experimentally tested
+	float radius = (exp( - (net->getNumNodes() * net->getNumNodes() / 500.f) ) * 0.8 + 0.2) * 20.f * height / 900.; 				//experimentally tested
 	circle.setRadius(radius);
 	circle.setOrigin(radius, radius);
 	circle.setOutlineColor(sf::Color::Black);
 	circle.setOutlineThickness(1.f);
 
 	FORV(i,nodes.getNL()){
-		circle.setPosition(nodes[i][0] * screenWidth, nodes[i][1] * screenHeight);
+		circle.setPosition(nodes[i][0] * width, nodes[i][1] * height);
 
 		float color = Node::sigmoid(nodes[i][2]);
 		circle.setFillColor(sf::Color((1 - color) * 255, color * 255, 100));
 
-		window.draw(circle);
+		image.draw(circle);
 	}
 
+	sf::Sprite sprite(image.getTexture());
+	
+
+	sprite.setScale(1.0, -1.0);
+	sprite.setPosition(0.0, sprite.getTextureRect().height);
+	return sprite;
+}
+
+
+void Image::draw(float screenWidth, float screenHeight){
+	window.create(sf::VideoMode(screenWidth, screenHeight), "Visualizer");
+	window.draw(makeImage(screenWidth, screenHeight));
 	window.display();
 }
 

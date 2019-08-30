@@ -72,6 +72,7 @@ namespace GA{
 
 		inline const Ind& 	getBest() const;
 		inline double 		getBestFitness() const;
+		inline Population<Ind>* getPopulation() const;
 
 		inline void addCriteria(StopReason stop, const VecD& params){ criteria.addCriteria(stop, params); }
 

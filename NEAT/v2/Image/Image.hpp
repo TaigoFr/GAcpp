@@ -18,6 +18,7 @@ namespace NEAT{
 		void evolve(unsigned _maxGenerations, unsigned eliteCount, double crossoverProb, double mutateProb);
 		void print() const; //prints positions to command line
 		void draw(float screenWidth = 1200.f, float screenHeight = 900.f);  //display SFMl image of network
+		sf::Sprite makeImage(float width = 1200.f, float height = 900.f); 
 		void handleEvent(); // handle window events
 		void wait();  //wait until SFML window is closed
 		void save(const std::string& name = "") const; //save image to file

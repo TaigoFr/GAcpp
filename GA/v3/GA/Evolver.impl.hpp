@@ -132,9 +132,11 @@ void Evolver<Ind>::fileSettings(const std::string& file, const std::string& pref
 }
 
 template <typename Ind>
-inline const Ind&  	Evolver<Ind>::getBest() 		const{ return population->getBest(); }
+inline const Ind&  		Evolver<Ind>::getBest() 		const{ return population->getBest(); }
 template <typename Ind>
-inline double 		Evolver<Ind>::getBestFitness() 	const{ return population->getBestFitness(); }
+inline double 			Evolver<Ind>::getBestFitness() 	const{ return population->getBestFitness(); }
+template<typename Ind>
+inline Population<Ind>* Evolver<Ind>::getPopulation() 	const{ return population; }
 
 
 template <typename Ind>
@@ -234,7 +236,6 @@ inline void Evolver<Ind>::printGen() const{
 		}
 		printf("Time=%lfs\n",C.L());
 	}
-
 }
 
 
@@ -272,7 +273,7 @@ unsigned Evolver<Ind>::findElite(Population<Ind> *offspring){
 			Species<Ind>::compareIndividuals);
 		// if(eliteCount)  std::sort(population->species[0]->pop.begin(), population->species[0]->pop.end(), 
 			// Species<Ind>::compareIndividuals);	
-		FOR(ind, eliteCount) addIndividual(offspring, population->species[0]->pop[ind]);
+			FOR(ind, eliteCount) addIndividual(offspring, population->species[0]->pop[ind]);
 		return eliteCount;
 	}
 	else{
