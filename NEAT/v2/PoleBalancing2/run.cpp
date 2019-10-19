@@ -6,17 +6,17 @@
 #define toRAD (M_PI/180.)
 #define g 9.8
 #define M 1.0
-#define m1 0.1
-#define m2 0.5
+#define m1 0.01
+#define m2 0.1
 #define L1 0.1
 #define L2 1.0
 #define thetaMAX (36.*toRAD)
 #define xMAX 2.5
-#define thetaDMAX 1.5
-#define xDMAX 1.0
+#define thetaDMAX 2.
+#define xDMAX 2.
 #define F_MAGN 10.0
 
-#define TMAX (30.*60.)
+#define TMAX (15.*60.)
 #define dt 0.01
 
 //variables explanation
@@ -30,8 +30,8 @@
 VecD invertedPendulumRHS(const VecD& x, const VecD& params){
 	double F = params[0];
 
-	double xpp = (m1*g*sin(x[1])*cos(x[1])-m1*L1*x[4]*x[4]*sin(x[1])
-				 +m2*g*sin(x[2])*cos(x[2])-m2*L2*x[5]*x[5]*sin(x[2])+F)/(M+m1*sin(x[1])*sin(x[1])+m2*sin(x[2])*sin(x[2]));
+	double xpp = (m1*(g*sin(x[1])+0.000002*x[4]/(m1*L1))*cos(x[1])-m1*L1*x[4]*x[4]*sin(x[1])
+				 +m2*(g*sin(x[2])+0.000002*x[5]/(m2*L2))*cos(x[2])-m2*L2*x[5]*x[5]*sin(x[2])+F)/(M+m1*sin(x[1])*sin(x[1])+m2*sin(x[2])*sin(x[2]));
 
 	return VecD({1,
 				x[4],
@@ -61,13 +61,20 @@ double pole(const NEAT::Network& net, const GA::Evolver<NEAT::Network>*){
 
 	while(t<TMAX && fabs(x0[1])<=thetaMAX && fabs(x0[2])<=thetaMAX && fabs(x0[3])<=xMAX){ //theta <= 36 degrees, x <= 2.5m
 		VecD inputs(6);
-		//normalize to [0,1]
+		//normalize to [-1,1]
+		inputs[0] = x0[1]/thetaMAX;
+		inputs[1] = x0[2]/thetaMAX;
+		inputs[2] = x0[3]/xMAX/2.;	// [-0.5, 0.5]
+		inputs[3] = x0[4]/thetaDMAX;
+		inputs[4] = x0[5]/thetaDMAX;
+		inputs[5] = x0[6]/xDMAX;
+/*		//normalize to [0,1]
 		inputs[0] = (x0[1]/thetaMAX 	+ 1.)/2.;
 		inputs[1] = (x0[2]/thetaMAX 	+ 1.)/2.;
 		inputs[2] = (x0[3]/xMAX 		+ 1.)/2.;
 		inputs[3] = (x0[4]/thetaDMAX 	+ 1.)/2.;
 		inputs[4] = (x0[5]/thetaDMAX 	+ 1.)/2.;
-		inputs[5] = (x0[6]/xDMAX 		+ 1.)/2.;
+		inputs[5] = (x0[6]/xDMAX 		+ 1.)/2.;*/
 		double F = F_MAGN * (2.*net.evaluate(inputs)[0] - 1.);
 		eq.setParams({F});
 		x0 = eq.stepRK4(x0, dt);

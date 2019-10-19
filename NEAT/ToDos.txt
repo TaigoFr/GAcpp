@@ -4,3 +4,10 @@ comment NEAT
 Note:
 	- preferSimilarFactor removed now that Species are introduced
 	- crossover_singlepoint not implemented (can lead to disconnected networks and doesn't seem trivial how to fix that), plus NEAT almost always uses it as 0
+
+
+ - check OneNote notes
+ - use Rand that myke added in his GameFramework -> global Rand
+ - check video about random generator that Myke sent me
+
+ - put 'Rand' inside namespace

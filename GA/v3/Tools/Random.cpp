@@ -3,10 +3,12 @@
 
 #include <chrono>
 
-Random::Random(){
-	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-	generator.seed(seed);
-	// generator.seed(2);
+Random::Random(int seed){
+	if(seed >= 0)
+		m_seed = (unsigned)seed;
+	else
+		m_seed = std::chrono::system_clock::now().time_since_epoch().count();
+	generator.seed(m_seed);
 }
 
 int Random::getI(int min, int max){

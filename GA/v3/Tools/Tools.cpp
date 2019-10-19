@@ -12,9 +12,45 @@ void errorMsg(const std::string& msg){
     exit(1);
 }
 
+int createFolder(std::string path){
+	int status = mkdir(path.c_str(), ACCESSPERMS);
+	if(status!=0)
+		switch(errno){
+			case EEXIST:
+				print("\nFOLDER " + path + " ALREADY EXISTS");
+				return 0;
+				break; //folder already exists
+			default:
+				errorMsg("FOLDER " + path + " COULD NOT BE CREATED");
+				break;
+		}
+	print("\nFOLDER " + path + " CREATED WITH SUCCESS");
+	return 1; //success
+}
+
 bool fileExists(const std::string& path){
     std::ifstream infile(path);
     return infile.good();
+}
+
+unsigned fileSize(const std::string& file){
+    std::ifstream infile(file, std::ifstream::ate | std::ifstream::binary);
+    return infile.tellg(); 
+}
+
+unsigned fileSize(std::ifstream& file){
+	std::streampos save = file.tellg();
+	file.seekg(0,std::ios::end);
+	unsigned out = file.tellg();
+	file.seekg(save);
+	return out;
+}
+
+unsigned fileSize_Beg(std::ifstream& file){
+	file.seekg(0,std::ios::end);
+	unsigned out = file.tellg();
+	file.seekg(0,std::ios::beg);
+	return out;
 }
 
 std::string checkFileName(const std::string& name, const std::string& extension){
