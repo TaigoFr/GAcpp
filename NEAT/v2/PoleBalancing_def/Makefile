@@ -15,7 +15,8 @@ USER_FLAGS  := -Wall -Wextra -std=c++11 -fopenmp -Wno-unused-parameter
 
 # ROOT_LD 	:= $(shell root-config --libs)
 # ROOT_CC 	:= $(shell root-config --cflags)
-SFML_LD 	:= -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
+SFML_LD 	:= -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio -L$(SFML_ROOT)/lib
+SFML_CC		:= -I$(SFML_ROOT)/include
 
 # VALGRIND	:= -g -O0
 VALGRIND	:= -O2
@@ -97,7 +98,7 @@ LIBS_DEP_FILES 	:= $(subst .o,.d,$(LIBS_OBJ_FILES))
 #LIBS_OBJ_FILES - replace .cpp by .o and add bin/ before then basename (but after the lib path)
 
 LD_FLAGS := $(USER_FLAGS) $(VALGRIND) $(ROOT_LD) $(SFML_LD)
-CC_FLAGS := $(USER_FLAGS) $(VALGRIND) $(ROOT_CD) $(INCLUDES) -MMD
+CC_FLAGS := $(USER_FLAGS) $(VALGRIND) $(ROOT_CD) $(SFML_CC) $(INCLUDES) -MMD
 
 $(EXECUTABLE): $(MAIN_OBJ_FILES) $(LIBS_OBJ_FILES)
 	@echo compiling $(BLUE) $(notdir $@) $(WHITE) depending $(GREEN) $(notdir $^) $(WHITE)
