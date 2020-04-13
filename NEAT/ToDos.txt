@@ -11,3 +11,7 @@ Note:
  - check video about random generator that Myke sent me
 
  - put 'Rand' inside namespace
+
+
+  - if I ever do HyperNEAT, remember to include 'distance' and not only 'x' and 'y' (from http://blog.otoro.net/2015/07/31/neurogram/)
+  Lectures about HyperNEAT at https://www.youtube.com/channel/UCKCmKOwVkoAh2NDp0T-Ovng/search?query=hyperneat

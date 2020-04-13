@@ -29,7 +29,7 @@ namespace NEAT{
 		static MatrixD 		crossover(const MatrixD&,const MatrixD&, double fit1, double fit2);
 		static void 		mutate	 (MatrixD&, const GA::Evolver<MatrixD>*);
 		static double		evaluate (const MatrixD&, const GA::Evolver<MatrixD>*);
-		inline static std::string	toString (const MatrixD& M){ return M.toString("  "); } //" " so that a \n is inserted after title in MatrixD::toString
+		inline static std::string	toString (const MatrixD& mat){ return mat.toString("  "); } //" " so that a \n is inserted after title in MatrixD::toString
 
 	private:
 		// const unsigned numInputs, numOutputs, numNodes;

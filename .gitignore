@@ -13,3 +13,5 @@ bin/
 
 *.DS_Store
 .fuse_hidden*
+
+NEAT_original/
