@@ -539,12 +539,13 @@ template <typename Ind> void Evolver<Ind>::generation()
                                      s); // select a species other than 's'
                     unsigned parent2 = selectParent(
                         population->species[speciesSelected]
-                            ->fitnessCumulative); // select an Individual from
-                                                  // that species
-                    // std::cout << "IN SPECIES " << s << " (" << parent1 << "|"
+                            ->fitnessCumulative); // select an Individual
+                                                  // from that species
+                    // std::cout << "IN SPECIES " << s << " (" << parent1 <<
+                    // "|"
                     // << population->species[s]->size() <<
-                    // "); MATING WITH SPECIES " << speciesSelected << " (" <<
-                    // parent2 << "|" <<
+                    // "); MATING WITH SPECIES " << speciesSelected << " ("
+                    // << parent2 << "|" <<
                     // population->species[speciesSelected]->size() << ")" <<
                     // std::endl;
                     child = new Individual<Ind>(crossover(
@@ -559,7 +560,8 @@ template <typename Ind> void Evolver<Ind>::generation()
                 {
                     unsigned parent2 = selectParent(
                         population->species[s]->fitnessCumulative, parent1);
-                    // std::cout << "PARENTS " << parent1 << " && " << parent2
+                    // std::cout << "PARENTS " << parent1 << " && " <<
+                    // parent2
                     // << std::endl;
                     child = new Individual<Ind>(crossover(
                         population->species[s]->pop[parent1]->I,
@@ -637,11 +639,11 @@ template <typename Ind> StopReason Evolver<Ind>::updateFitness()
         double fitnessSum_orig = 0.;
 
 #pragma omp parallel for \
-		default(none) \
-		shared(s, pb) \
-		reduction(+:fitnessSum_orig) \
-		reduction(max:maxfitness_orig) \
-		reduction(min:minfitness_orig)
+        default(none) \
+        shared(s, pb) \
+        reduction(+:fitnessSum_orig) \
+        reduction(max:maxfitness_orig) \
+        reduction(min:minfitness_orig)
         for (unsigned i = 0; i < population->species[s]->size(); ++i)
         {
             Individual<Ind> *ind = population->species[s]->pop[i];
@@ -663,7 +665,10 @@ template <typename Ind> StopReason Evolver<Ind>::updateFitness()
                     minfitness_orig = ind->fitness_orig;
             }
             if (verbose)
+            {
+#pragma omp critical
                 ++(*pb);
+            }
         }
 
         population->species[s]->fitnessSum_orig = fitnessSum_orig;
