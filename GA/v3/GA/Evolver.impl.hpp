@@ -520,7 +520,8 @@ template <typename Ind> void Evolver<Ind>::generation()
     {
 #pragma omp parallel for default(none)                                         \
     shared(s, population, crossoverProb, mutateProb, expectedOffspring,        \
-           offspring, generator, std::cout, speciesCumulativeSum)
+           offspring, generator, std::cout, speciesCumulativeSum)              \
+        schedule(static)
         for (unsigned ind = 0; ind < expectedOffspring[s]; ++ind)
         {
 
@@ -598,7 +599,7 @@ template <typename Ind> void Evolver<Ind>::generation()
 template <typename Ind> inline void Evolver<Ind>::initiatePopulation()
 {
 // populationSize shared by default, for being 'const'
-#pragma omp parallel for default(none) shared(population)
+#pragma omp parallel for default(none) shared(population) schedule(static)
     for (unsigned i = 0; i < populationSize; ++i)
         addIndividual(population, new Individual<Ind>(create(this)));
     if (verbose)
@@ -643,7 +644,8 @@ template <typename Ind> StopReason Evolver<Ind>::updateFitness()
         shared(s, pb) \
         reduction(+:fitnessSum_orig) \
         reduction(max:maxfitness_orig) \
-        reduction(min:minfitness_orig)
+        reduction(min:minfitness_orig) \
+        schedule(static)
         for (unsigned i = 0; i < population->species[s]->size(); ++i)
         {
             Individual<Ind> *ind = population->species[s]->pop[i];
@@ -665,10 +667,7 @@ template <typename Ind> StopReason Evolver<Ind>::updateFitness()
                     minfitness_orig = ind->fitness_orig;
             }
             if (verbose)
-            {
-#pragma omp critical
                 ++(*pb);
-            }
         }
 
         population->species[s]->fitnessSum_orig = fitnessSum_orig;

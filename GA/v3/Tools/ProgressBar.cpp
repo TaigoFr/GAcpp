@@ -4,6 +4,7 @@
 #include <cmath>
 #include <iomanip>
 #include <iostream>
+#include <sstream>
 
 ProgressBar::ProgressBar(unsigned p_max, const std::string p_name,
                          unsigned p_PBwidth)
@@ -21,21 +22,23 @@ void ProgressBar::printProgress()
 
     float percentage = (float)count / max;
     unsigned lpad = percentage * PBwidth;
-    std::cout.setf(std::ios::fixed, std::ios::floatfield);
-    std::cout << "\r";
-    std::cout << name << " " << std::setfill(' ') << std::setw(nchars) << count
-              << "/" << max << " [";
+    std::stringstream ss;
+    ss.setf(std::ios::fixed, std::ios::floatfield);
+    ss << "\r";
+    ss << name << " " << std::setfill(' ') << std::setw(nchars) << count << "/"
+       << max << " [";
     unsigned i = 0;
     for (; i < lpad; ++i)
-        std::cout << PBchar;
+        ss << PBchar;
     if (i < PBwidth)
     {
-        std::cout << PBchar2;
+        ss << PBchar2;
         ++i;
     }
     for (; i < PBwidth; ++i)
-        std::cout << PBchar3;
-    std::cout << "]" << std::flush;
+        ss << PBchar3;
+    ss << "]";
+    std::cout << ss.str() << std::flush;
 }
 
 // Define prefix increment operator.
